@@ -399,6 +399,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php } ?>
 				</select>
 			</div>
+
+			<?php if ( class_exists( 'Paid_Member_Subscriptions' ) ) { ?>
+				<div class="value_input wcs_user_pms_plans_input">
+					<select class="wc-enhanced-select" name="wcs_conditions[{{data.index}}][user_pms_plans][]" class="select" multiple>
+						<?php foreach ( wcs_pms_plan_options() as $plan_id => $name ) { ?>
+							<option
+								value="<?php echo esc_attr( $plan_id ); ?>"
+								<# if ( data.user_pms_plans && jQuery.inArray( '<?php echo esc_js( $plan_id ); ?>', data.user_pms_plans ) !== -1 ) { #>
+									selected
+								<# } #>
+							>
+								<?php echo wcs_esc_html( $name ); ?>
+							</option>
+						<?php } ?>
+					</select>
+				</div>
+			<?php } ?>
 		
 			<?php do_action( 'woo_conditional_shipping_ruleset_value_inputs', $ruleset ); ?>
 		</td>
@@ -449,12 +466,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="value_input wcs_error_msg_input">
 				<textarea name="wcs_actions[{{data.index}}][error_msg]" rows="4" cols="40" placeholder="<?php esc_attr_e( __( 'Custom "no shipping methods available" message', 'conditional-shipping-for-woocommerce' ) ); ?>">{{ data.error_msg }}</textarea>
 			</div>
-
+		</td>
+		<td class="wcs-values">
 			<div class="value_input wcs_notice_input">
 				<textarea name="wcs_actions[{{data.index}}][notice]" rows="4" cols="40" placeholder="<?php esc_attr_e( __( 'Shipping notice', 'conditional-shipping-for-woocommerce' ) ); ?>">{{ data.notice }}</textarea>
 			</div>
-		</td>
-		<td class="wcs-values">
+
 			<div class="value_input wcs_price_value_input">
 				<input name="wcs_actions[{{data.index}}][price]" type="number" step="any" value="{{ data.price }}" />
 

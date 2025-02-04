@@ -3,16 +3,16 @@ jQuery(document).ready(function($) {
 	 * Notices in checkout
 	 */
 	$( document.body ).on( 'updated_checkout', function() {
-		var noticesEl = $( '#wcs-notices-pending' );
+		let noticesEl = $( '#wcs-notices-pending' );
 
 		if ( noticesEl.length > 0 ) {
 			// Clear existing notices
 			$( '#wcs-notices' ).remove();
 
-			var shippingRow = $( 'tr.woocommerce-shipping-totals td:eq(0)' );
+			let shippingMethods = $( '.woocommerce-shipping-totals ul.woocommerce-shipping-methods' );
 			
-			if ( shippingRow.length > 0 ) {
-				shippingRow.append( noticesEl );
+			if ( shippingMethods.length > 0 ) {
+				shippingMethods.after( noticesEl );
 				noticesEl.css( 'display', 'block' ).attr( 'id', 'wcs-notices' );
 			}
 		}
@@ -22,16 +22,16 @@ jQuery(document).ready(function($) {
 	 * Notices in cart
 	 */
 	 $( document.body ).on( 'wcs_updated_cart', function() {
-		var noticesEl = $( '#wcs-notices-pending' );
+		let noticesEl = $( '#wcs-notices-pending' );
 
 		if ( noticesEl.length > 0 ) {
 			// Clear existing notices
 			$( '#wcs-notices' ).remove();
 
-			var shippingRow = $( 'tr.woocommerce-shipping-totals td:eq(0)' );
+			let shippingMethods = $( '.woocommerce-shipping-totals ul.woocommerce-shipping-methods' );
 			
-			if ( shippingRow.length > 0 ) {
-				shippingRow.append( noticesEl );
+			if ( shippingMethods.length > 0 ) {
+				shippingMethods.after( noticesEl );
 				noticesEl.css( 'display', 'block' ).attr( 'id', 'wcs-notices' );
 			}
 		}

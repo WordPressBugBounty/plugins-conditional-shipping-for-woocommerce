@@ -64,7 +64,7 @@ class Woo_Conditional_Shipping_Frontend {
 	 * Check if blocks based checkout is active
 	 */
 	public function is_blocks_checkout() {
-		if ( class_exists( 'Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils' ) && is_callable( [ 'Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils', 'is_checkout_block_default'] ) && \Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils::is_checkout_block_default() ) {
+		if ( class_exists( 'Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils' ) && is_callable( [ 'Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils', 'is_checkout_block_default'] ) && \Automattic\WooCommerce\Blocks\Utils\CartCheckoutUtils::is_checkout_block_default() && ! has_block( 'woocommerce/classic-shortcode' ) ) {
 			return true;
 		}
 
@@ -196,7 +196,7 @@ class Woo_Conditional_Shipping_Frontend {
 				}
 
 				if ( $action['type'] === 'shipping_notice' ) {
-					if ( $passes ) {
+					if ( $passes && $ruleset->notice_applicable( $action ) ) {
 						$notice = do_shortcode( strval( $action['notice'] ) );
 
 						$this->notices[] = sprintf( '<div class="conditional-shipping-notice">%s</div>', $notice );

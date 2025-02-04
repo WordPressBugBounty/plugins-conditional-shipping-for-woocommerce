@@ -386,8 +386,12 @@ class Woo_Conditional_Shipping_Debug {
 
       $shipping_class_id = str_replace( $prefix, '', $condition['subset_filter'] );
 
-      if ( $shipping_class_id && ( $term = get_term_by( 'id', $shipping_class_id, 'product_shipping_class' ) ) ) {
-        return sprintf( '%s - %s', $title, $term->name );
+      if ( strlen( $shipping_class_id ) > 0 ) {
+        if ( $shipping_class_id === '0' ) {
+          return sprintf( '%s - %s', $title, __( 'No shipping class', 'conditional-shipping-for-woocommerce' ) );
+        } else if ( $term = get_term_by( 'id', $shipping_class_id, 'product_shipping_class' ) ) {
+          return sprintf( '%s - %s', $title, $term->name );
+        }
       }
     }
 
@@ -456,6 +460,8 @@ class Woo_Conditional_Shipping_Debug {
         return $this->get_time_title( $condition );
       case 'date':
         return $condition['date'];
+      case 'user_pms_plans':
+        return implode( ', ', $this->get_user_pms_plan_titles( $condition ) );
       default:
         return 'N/A';
     }
@@ -469,7 +475,11 @@ class Woo_Conditional_Shipping_Debug {
     foreach ( $ids as $id ) {
       $term = get_term_by( 'id', $id, $taxonomy );
 
-      $titles[] = $term ? $term->name : __( 'N/A', 'conditional-shipping-for-woocommerce' );
+      if ( $taxonomy === 'product_shipping_class' && $id == 0 ) {
+        $titles[] = __( 'No shipping class', 'conditional-shipping-for-woocommerce' );
+      } else {
+        $titles[] = $term ? $term->name : __( 'N/A', 'conditional-shipping-for-woocommerce' );
+      }
     }
 
     return $titles;
@@ -501,6 +511,17 @@ class Woo_Conditional_Shipping_Debug {
     }
 
     return $this->ids_to_list( $role_ids, $this->customer_roles );
+  }
+
+  /**
+   * Get user subscription plan titles
+   */
+  private function get_user_pms_plan_titles( $condition ) {
+    $plan_ids = isset( $condition['user_pms_plans'] ) ? $condition['user_pms_plans'] : [];
+
+    $plans = wcs_pms_plan_options( $plan_ids );
+
+    return $this->ids_to_list( $plan_ids, $plans );
   }
 
   /**

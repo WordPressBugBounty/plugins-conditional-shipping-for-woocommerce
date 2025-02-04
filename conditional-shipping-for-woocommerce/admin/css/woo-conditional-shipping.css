@@ -324,6 +324,10 @@
   line-height: 34px;
 }
 
+.woocommerce table.form-table table.wcs-table tr.wcs-type-user_pms_plans .wcs_user_pms_plans_input {
+  display: block;
+}
+
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type- td.wcs_title_value_input,
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type- td.wcs-methods * {
   display: none;
@@ -368,11 +372,6 @@
 
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-custom_error_msg .wcs_error_msg_input {
   display: block;
-}
-
-.woocommerce table.form-table table.wcs-table tr.wcs-action-type-shipping_notice td.wcs-methods .select2,
-.woocommerce table.form-table table.wcs-table tr.wcs-action-type-shipping_notice td.wcs-methods select {
-  display: none;
 }
 
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-shipping_notice .wcs_notice_input {

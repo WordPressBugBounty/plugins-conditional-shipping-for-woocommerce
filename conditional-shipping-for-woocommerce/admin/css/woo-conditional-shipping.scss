@@ -264,6 +264,10 @@
 		}
 	}
 
+	tr.wcs-type-user_pms_plans .wcs_user_pms_plans_input {
+		display: block;
+	}
+
 	tr.wcs-action-type- {
 		td.wcs_title_value_input,
 		td.wcs-methods * {
@@ -319,10 +323,6 @@
 
 	tr.wcs-action-type-shipping_notice {
 		td.wcs-methods {
-			.select2,
-			select {
-				display: none;
-			}
 		}
 
 		.wcs_notice_input {

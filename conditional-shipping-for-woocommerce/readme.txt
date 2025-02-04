@@ -2,9 +2,9 @@
 Contributors: wooelements
 Tags: woocommerce shipping, conditional shipping
 Requires at least: 4.6
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 3.3.0
+Stable tag: 3.4.0
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,12 @@ If you have dynamic / live shipping rates such as USPS, you will need to use **M
 That should be all. Any questions / issues / bug reports feel free to create a post on [WordPress.org support forum](https://wordpress.org/support/plugin/conditional-shipping-for-woocommerce/).
 
 == Changelog ==
+
+= 3.4.0 =
+
+* The volume unit is now fixed to cubic meters (m³) when using metric measurements (mm, cm or m)
+* Improved compatibility of the **Match by name** option with dynamic shipping rates (e.g., live rates by USPS)
+* Added filters (**wcs_item_weight**, **wcs_item_height**, **wcs_item_width**, and **wcs_item_length**) to allow developers to modify item dimensions programmatically
 
 = 3.3.0 =
 

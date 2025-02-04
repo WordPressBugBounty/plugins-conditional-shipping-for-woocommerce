@@ -89,10 +89,28 @@ function wcs_get_price_modes() {
   return [
     'fixed' => $currency_symbol,
     'per_weight_unit' => sprintf( __( '%s per %s', 'conditional-shipping-for-woocommerce' ), $currency_symbol, get_option( 'woocommerce_weight_unit' ) ),
+    'per_volume' => sprintf( __( '%s per %s', 'conditional-shipping-for-woocommerce' ), $currency_symbol, wcs_get_volume_unit() ),
     'per_piece' => sprintf( __( '%s per piece', 'conditional-shipping-for-woocommerce' ), $currency_symbol ),
     'pct' => __( '% of subtotal', 'conditional-shipping-for-woocommerce' ),
     'pct_shipping' => __( '% of shipping', 'conditional-shipping-for-woocommerce' ),
   ];
+}
+
+/**
+ * Get volume unit
+ * 
+ * The plugin will automatically convert mm3 and cm3 to m3
+ * since most carriers use m3 in their pricing
+ */
+function wcs_get_volume_unit() {
+  $dimension_unit = get_option( 'woocommerce_dimension_unit' );
+
+  $volume_unit = sprintf( '%s&sup3;', $dimension_unit );
+  if ( in_array( $dimension_unit, [ 'mm', 'cm' ], true ) ) {
+    $volume_unit = 'm&sup3;';
+  }
+
+  return $volume_unit;
 }
 
 /**
@@ -175,7 +193,7 @@ function woo_conditional_shipping_filter_groups() {
           'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
         ),
         'volume' => array(
-          'title' => sprintf( __( 'Total Volume (%s&sup3;)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_dimension_unit' ) ),
+          'title' => sprintf( __( 'Total Volume (%s)', 'conditional-shipping-for-woocommerce' ), wcs_get_volume_unit() ),
           'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
         ),
       )
@@ -540,13 +558,15 @@ function woo_conditional_product_attr_options() {
  * Get shipping class options
  */
 function woo_conditional_shipping_get_shipping_class_options() {
-  $shipping_classes = WC()->shipping->get_shipping_classes();
-  $shipping_class_options = array();
-  foreach ( $shipping_classes as $shipping_class ) {
-    $shipping_class_options[$shipping_class->term_id] = $shipping_class->name;
+  $options = [];
+
+  foreach ( WC()->shipping->get_shipping_classes() as $shipping_class ) {
+    $options[$shipping_class->term_id] = $shipping_class->name;
   }
 
-  return $shipping_class_options;
+  $options['0'] = __( 'No shipping class', 'conditional-shipping-for-woocommerce' );
+
+  return $options;
 }
 
 /**
@@ -934,7 +954,7 @@ function wcs_get_cart_weight() {
           continue;
         }
   
-        $weight += floatval( $product->get_weight() ) * floatval( $item['quantity'] );
+        $weight += floatval( apply_filters( 'wcs_item_weight', $product->get_weight(), $item ) ) * floatval( $item['quantity'] );
       }
 
       return $weight;
@@ -942,6 +962,60 @@ function wcs_get_cart_weight() {
   }
 
   return 0;
+}
+
+/**
+ * Get cart volume
+ */
+function wcs_get_cart_volume() {
+  if ( function_exists( 'WC' ) ) {
+    $cart = WC()->cart;
+    
+    if ( is_callable( [ $cart, 'get_cart' ] ) ) {
+      $volume = 0;
+      foreach ( $cart->get_cart() as $item ) {
+        $product = $item['data'];
+
+        if ( ! $product->needs_shipping() ) {
+          continue;
+        }
+
+        $length = apply_filters( 'wcs_item_length', $product->get_length(), $item );
+        $width = apply_filters( 'wcs_item_width', $product->get_width(), $item );
+        $height = apply_filters( 'wcs_item_height', $product->get_height(), $item );
+
+        if ( is_numeric ( $length ) && is_numeric( $width ) && is_numeric( $height ) ) {
+          $volume += ( $length * $width * $height ) * $item['quantity'];
+        }
+      }
+
+      // Convert volume from mm3 and cm3 to m3
+      $dimension_unit = get_option( 'woocommerce_dimension_unit' );
+      if ( in_array( $dimension_unit, [ 'mm', 'cm' ], true ) ) {
+        $volume = wcs_convert_volume( $volume, $dimension_unit, 'm' );
+      }
+
+      return $volume;
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * Convert volume to m3
+ */
+function wcs_convert_volume( $value, $from, $to ) {
+  if ( $to === 'm' ) {
+    if ( $from === 'mm' ) {
+      return $value / 1000000000;
+    } else if ( $from === 'cm' ) {
+      return $value / 1000000;
+    }
+  }
+
+  error_log( "Invalid from ({$from}) or to unit ({$to})" );
+  return null;
 }
 
 /**
@@ -982,4 +1056,66 @@ function wcs_translate_action( $action ) {
   }
 
   return $action;
+}
+
+/**
+ * Get active shipping rate ID
+ */
+function wcs_get_active_rate_id() {
+  if ( WC()->cart ) {
+    $chosen_methods = WC()->session->get( 'chosen_shipping_methods' );
+    if ( ! empty( $chosen_methods ) ) {
+      $rate_id = reset( $chosen_methods );
+
+      return $rate_id;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Get active shipping rate
+ */
+function wcs_get_active_rate() {
+  $active_rate_id = wcs_get_active_rate_id();
+
+  // Rates are stored in session
+  if ( $active_rate_id !== null && WC()->session && is_callable( [ WC()->session, 'get' ] ) ) {
+    $shipping = WC()->session->get( 'shipping_for_package_0' );
+    if ( is_array( $shipping ) && isset( $shipping['rates'] ) && is_array( $shipping['rates'] ) ) {
+      foreach ( $shipping['rates'] as $rate_id => $rate ) {
+        if ( $rate_id && $rate_id === $active_rate_id && is_a( $rate, 'WC_Shipping_Rate' ) ) {
+          return $rate;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Subscriptions plans for Paid Membership Subscriptions
+ * 
+ * https://wordpress.org/plugins/paid-member-subscriptions/
+ */
+function wcs_pms_plan_options() {
+  $options = [];
+
+  $posts = get_posts( [
+    'post_type' => 'pms-subscription',
+    'posts_per_page' => -1,
+    'orderby' => 'title',
+    'order' => 'ASC',
+    'post_status' => 'any',
+  ] );
+
+  if ( ! empty( $posts ) ) {
+    foreach ( $posts as $post ) {
+      $options[$post->ID] = $post->post_title;
+    }
+  }
+
+  return $options;
 }

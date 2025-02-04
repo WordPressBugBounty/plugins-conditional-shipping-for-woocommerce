@@ -60,6 +60,11 @@ class Woo_Conditional_Shipping_Filters {
   public static function filter_volume( $condition, $package ) {
 		$package_volume = self::calculate_package_volume( $package, $condition );
 
+		$dimension_unit = get_option( 'woocommerce_dimension_unit' );
+		if ( in_array( $dimension_unit, [ 'mm', 'cm' ], true ) ) {
+		  $package_volume = wcs_convert_volume( $package_volume, $dimension_unit, 'm' );
+		}
+
 		if ( isset( $condition['value'] ) && ! empty( $condition['value'] ) ) {
 			$volume = self::parse_number( $condition['value'] );
 
@@ -308,7 +313,7 @@ class Woo_Conditional_Shipping_Filters {
 				continue;
 			}
 
-			$item_weight = floatval( $product->get_weight() );
+			$item_weight = floatval( apply_filters( 'wcs_item_weight', $product->get_weight(), $data ) );
 
 			if ( $item_weight ) {
 				$total_weight += $item_weight * $data['quantity'];
@@ -337,9 +342,9 @@ class Woo_Conditional_Shipping_Filters {
 				continue;
 			}
 
-			$length = $product->get_length();
-			$width = $product->get_width();
-			$height = $product->get_height();
+			$length = apply_filters( 'wcs_item_length', $product->get_length(), $data );
+			$width = apply_filters( 'wcs_item_width', $product->get_width(), $data );
+			$height = apply_filters( 'wcs_item_height', $product->get_height(), $data );
 
 			if ( is_numeric ( $length ) && is_numeric( $width ) && is_numeric( $height ) ) {
 				$volume = $length * $width * $height;
@@ -363,10 +368,10 @@ class Woo_Conditional_Shipping_Filters {
 				continue;
 			}
 
-			$item_height = $product->get_height();
+			$height = apply_filters( 'wcs_item_height', $product->get_height(), $data );
 
-			if ( $item_height ) {
-				$total += floatval( $item_height ) * $data['quantity'];
+			if ( $height ) {
+				$total += floatval( $height ) * $data['quantity'];
 			}
 		}
 
@@ -386,7 +391,7 @@ class Woo_Conditional_Shipping_Filters {
 				continue;
 			}
 
-			$length = $product->get_length();
+			$length = apply_filters( 'wcs_item_length', $product->get_length(), $data );
 
 			if ( $length ) {
 				$total += floatval( $length ) * $data['quantity'];
@@ -409,7 +414,7 @@ class Woo_Conditional_Shipping_Filters {
 				continue;
 			}
 
-			$width = $product->get_width();
+			$width = apply_filters( 'wcs_item_width', $product->get_width(), $data );
 
 			if ( $width ) {
 				$total += floatval( $width ) * $data['quantity'];

@@ -307,4 +307,25 @@ class Woo_Conditional_Shipping_Ruleset {
 
     return $passed;
   }
+
+  /**
+   * Check if notice is applicable
+   */
+  public function notice_applicable( $action ) {
+    if ( isset( $action['shipping_method_ids'] ) && ! empty( $action['shipping_method_ids'] ) ) {
+      $rate = wcs_get_active_rate();
+              
+      if ( $rate ) {
+        $instance_id = $rate->get_instance_id();
+        $title = $rate->get_label();
+      } else {
+        $instance_id = false;
+        $title = '';
+      }
+
+      return wcs_method_selected( $title, $instance_id, $action );
+    }
+
+    return true;
+  }
 }

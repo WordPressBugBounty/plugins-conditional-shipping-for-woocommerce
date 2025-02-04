@@ -30,10 +30,94 @@ class Woo_Conditional_Shipping_Updater {
       $this->run_200();
     }
 
+    if ( version_compare( '3.4.0', $this->db_version ) >= 1 ) {
+      $this->run_340();
+    }
+
+    if ( version_compare( '3.4.0.1', $this->db_version ) >= 1 ) {
+      $this->run_3401();
+    }
+
     // Set version to the latest version
     if ( $this->db_version != $this->version ) {
       update_option( $this->db_version_option, $this->version );
     }
+  }
+
+  /**
+   * Run 3.4.0 update
+   * 
+   * "Set shipping notice" action had added support
+   * for selecting which shipping methods the notice is for.
+   * 
+   * This update will select "All shipping methods" for all notices
+   * previously created which was the default behaviour before
+   */
+  private function run_340() {
+    $already_done = get_option( 'wcs_updated_340', 'no' );
+    if ( $already_done === 'yes' ) {
+      return;
+    }
+
+    foreach ( woo_conditional_shipping_get_rulesets() as $ruleset ) {
+      $actions = $ruleset->get_actions();
+
+      $updated = false;
+      foreach ( $actions as $key => $action ) {
+        // Set selected shipping methods to "All shipping methods" because
+        // previously this field was not visible for notice action, however it 
+        // might have residue selections from other actions
+        if ( is_array( $action ) && isset( $action['type'] ) && $action['type'] === 'shipping_notice' ) {
+          $actions[$key]['shipping_method_ids'] = [ '_all' ];
+          $updated = true;
+        }
+      }
+
+      if ( $updated ) {
+        update_post_meta( $ruleset->get_id(), '_wcs_actions', $actions );
+      }
+    }
+
+    update_option( 'wcs_updated_340', 'yes' );
+  }
+
+  /**
+   * Run 3.4.0.1 update
+   * 
+   * All metric volume units (mm3, cm3 and m3) are automatically
+   * converted to m3 since most carriers use m3 for pricing
+   */
+  private function run_3401() {
+    $already_done = get_option( 'wcs_updated_3401', 'no' );
+    if ( $already_done === 'yes' ) {
+      return;
+    }
+
+    // This update only concerns when dimension units are mm or cm
+    $dimension_unit = get_option( 'woocommerce_dimension_unit' );
+    if ( ! in_array( $dimension_unit, [ 'mm', 'cm' ], true ) ) {
+      update_option( 'wcs_updated_3401', 'yes' );
+      return;
+    }
+
+    foreach ( woo_conditional_shipping_get_rulesets() as $ruleset ) {
+      $conditions = $ruleset->get_conditions();
+
+      $updated = false;
+      foreach ( $conditions as $key => $condition ) {
+        if ( $condition['type'] === 'volume' ) {
+          $conditions[$key]['value'] = wcs_convert_volume( $condition['value'], $dimension_unit, 'm' );
+
+          $updated = true;
+        }
+      }
+
+      if ( $updated ) {
+        update_post_meta( $ruleset->get_id(), '_wcs_conditions', $conditions );
+      }
+    }
+
+    update_option( 'wcs_updated_3401', 'yes' );
   }
 
   /**
