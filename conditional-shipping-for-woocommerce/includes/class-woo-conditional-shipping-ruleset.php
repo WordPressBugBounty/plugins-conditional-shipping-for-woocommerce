@@ -88,7 +88,7 @@ class Woo_Conditional_Shipping_Ruleset {
       'action' => 'delete',
     ), admin_url( 'admin.php?page=wc-settings&tab=shipping&section=woo_conditional_shipping' ) );
 
-    return $url;
+    return wp_nonce_url( $url, 'wcs-delete-ruleset' );
   }
 
   /**
@@ -100,7 +100,7 @@ class Woo_Conditional_Shipping_Ruleset {
       'action' => 'duplicate',
     ], admin_url( 'admin.php?page=wc-settings&tab=shipping&section=woo_conditional_shipping' ) );
 
-    return $url;
+    return wp_nonce_url( $url, 'wcs-duplicate-ruleset' );
   }
 
   /**

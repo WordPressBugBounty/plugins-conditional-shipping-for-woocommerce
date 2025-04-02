@@ -33,8 +33,8 @@ class Woo_Conditional_Shipping_Admin {
 		// without standard section
     add_filter( 'woocommerce_get_settings_shipping', array( $this, 'hide_default_settings' ), 100, 2 );
     
-    // Admin AJAX action for toggling ruleset activity
-    add_action( 'wp_ajax_wcs_toggle_ruleset', array( $this, 'toggle_ruleset' ) );
+    // Admin AJAX actions
+    add_action( 'wp_ajax_wcs_toggle_ruleset', [ $this, 'toggle_ruleset' ] );
 	}
 	
   /**
@@ -119,7 +119,9 @@ class Woo_Conditional_Shipping_Admin {
       }
 
       // Delete ruleset
-      if ( $ruleset_id && 'delete' === $action ) {
+      if ( $ruleset_id && 'delete' === $action && 'wcs_ruleset' === get_post_type( $ruleset_id ) ) {
+        check_ajax_referer( 'wcs-delete-ruleset' );
+
         wp_delete_post( $ruleset_id, false );
 
         $url = admin_url( 'admin.php?page=wc-settings&tab=shipping&section=woo_conditional_shipping' );
@@ -128,7 +130,9 @@ class Woo_Conditional_Shipping_Admin {
       }
       
       // Duplicate ruleset
-      if ( $ruleset_id && 'duplicate' === $action ) {
+      if ( $ruleset_id && 'duplicate' === $action && 'wcs_ruleset' === get_post_type( $ruleset_id ) ) {
+        check_ajax_referer( 'wcs-duplicate-ruleset' );
+
         $cloned_ruleset_id = $this->clone_ruleset( $ruleset_id );
 
         wp_safe_redirect( admin_url( 'admin.php?page=wc-settings&tab=shipping&section=woo_conditional_shipping&ruleset_id=' . $cloned_ruleset_id ) );
@@ -308,7 +312,7 @@ class Woo_Conditional_Shipping_Admin {
   }
   
   /**
-   * Toggle reulset
+   * Toggle ruleset
    */
   public function toggle_ruleset() {
     check_ajax_referer( 'wcs-toggle-ruleset', 'security' );
