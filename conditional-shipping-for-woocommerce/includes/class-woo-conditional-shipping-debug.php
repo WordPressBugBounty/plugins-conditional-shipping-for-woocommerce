@@ -80,6 +80,11 @@ class Woo_Conditional_Shipping_Debug {
    * Format debug data
    */
   public function format() {
+    // Do not run for admin
+    if ( is_admin() ) {
+      return;
+    }
+
     // Do not run if all rulesets are disabled
     if ( get_option( 'wcs_disable_all', false ) ) {
       return;
@@ -260,6 +265,7 @@ class Woo_Conditional_Shipping_Debug {
   public function translate_action( $action, $passes ) {
     $actions = woo_conditional_shipping_actions();
     $price_modes = wcs_get_price_modes();
+    $price_per_options = wcs_get_price_per_options();
 
     $cols = [
       isset( $actions[$action['type']] ) ? $actions[$action['type']]['title'] : __( 'N/A', 'conditional-shipping-for-woocommerce' ),
@@ -280,7 +286,13 @@ class Woo_Conditional_Shipping_Debug {
         $price_mode = isset( $action['price_mode'] ) ? $action['price_mode'] : 'fixed';
         $price_mode_desc = isset( $price_modes[$price_mode] ) ? $price_modes[$price_mode] : '';
 
-        $cols['value'] = sprintf( '%s %s', $action['price'], $price_mode_desc );
+        $price_per_desc = '';
+        if ( in_array( $price_mode, [ 'per_weight_unit', 'per_piece', 'per_volume' ], true ) ) {
+          $price_per = isset( $action['price_per'] ) ? $action['price_per'] : '';
+          $price_per_desc = isset( $price_per_options[$price_per] ) ? $price_per_options[$price_per] : '';
+        }
+
+        $cols['value'] = trim( sprintf( '%s %s %s', $action['price'], $price_mode_desc, $price_per_desc ) );
         break;
       case 'set_title':
         $cols['methods'] = implode( ', ', $this->get_shipping_method_titles( $action ) );
@@ -363,6 +375,11 @@ class Woo_Conditional_Shipping_Debug {
 
     $cols[] = $operator;
 
+    // Do not show value if operator is "is empty" or "is not empty"
+    if ( in_array( $condition['operator'], [ 'exists', 'notexists' ], true ) ) {
+      $value = null;
+    }
+
     // Some conditions only has operator and not value (e.g. customer logged in condition)
     if ( $value !== null ) {
       $cols[] = $value;
@@ -422,6 +439,9 @@ class Woo_Conditional_Shipping_Debug {
       case 'product_height':
       case 'product_length':
       case 'product_width':
+      case 'orders':
+      case 'billing_company':
+      case 'shipping_company':
         return $condition['value'];
       case 'products':
         return implode( ', ', array_map( 'get_the_title', (array) $condition['product_ids'] ) );
@@ -433,6 +453,8 @@ class Woo_Conditional_Shipping_Debug {
         return implode( ', ', $this->get_term_titles( (array) $condition['product_tags'], 'product_tag' ) );
       case 'product_attrs':
         return implode( ', ', $this->get_attr_titles( (array) $condition['product_attrs'] ) );
+      case 'stock_status':
+        return implode( ', ', $this->get_stock_status_titles( (array) $condition['stock_status'] ) );
       case 'coupon':
         $coupon_ids = isset( $condition['coupon_ids'] ) ? (array) $condition['coupon_ids'] : [];
         return implode( ', ', array_map( 'wcs_get_coupon_title', $coupon_ids ) );
@@ -440,6 +462,10 @@ class Woo_Conditional_Shipping_Debug {
         return null; // This condition doesn't has value, only operator
       case 'customer_role':
         return implode( ', ', $this->get_role_titles( $condition['user_roles'] ) );
+      case 'billing_phone':
+        return $this->convert_list( $condition['phones'] );
+      case 'billing_email':
+          return $this->convert_list( $condition['emails'] );
       case 'billing_postcode':
       case 'shipping_postcode':
         return $condition['postcodes'];
@@ -500,6 +526,17 @@ class Woo_Conditional_Shipping_Debug {
     }
 
     return $this->ids_to_list( $condition_attrs, $this->product_attrs );
+  }
+
+  /**
+   * Get stock status titles
+   */
+  private function get_stock_status_titles( $types ) {
+    $titles = wcs_get_stock_status_options();
+
+    return array_map( function( $type ) use ( $titles ) {
+      return isset( $titles[$type] ) ? $titles[$type] : $type;
+    }, $types );
   }
 
   /**
@@ -592,5 +629,12 @@ class Woo_Conditional_Shipping_Debug {
     }
 
     return $titles;
+  }
+
+  /**
+   * Convert line separated list into a comma separated list
+   */
+  private function convert_list( $items ) {
+    return implode( ', ', array_map( 'trim', explode( "\n", $items ) ) );
   }
 }

@@ -395,6 +395,12 @@ jQuery(document).ready(function($) {
 
 				self.toggleValueInputs( row );
 			});
+
+			$( document ).on( 'change', 'select.wcs-price-mode', function() {
+				var row = $( this ).closest( 'tr' );
+
+				self.toggleValueInputs( row );
+			});
 		},
 
 		/**
@@ -420,10 +426,13 @@ jQuery(document).ready(function($) {
 		 */
 		toggleValueInputs: function( row ) {
 			this.removeClassStartingWith( row, 'wcs-action-type-' );
+			this.removeClassStartingWith( row, 'wcs-price-mode-' );
 
-			var type = $( 'select.wcs_action_type_select', row ).val();
+			let type = $( 'select.wcs_action_type_select', row ).val();
+			let priceMode = $( 'select.wcs-price-mode', row ).val();
 
 			row.addClass( 'wcs-action-type-' + type );
+			row.addClass( 'wcs-price-mode-' + priceMode );
 
 			$( '.wcs-methods select:data(placeholder)', row ).trigger( 'change' );
 		},
@@ -522,6 +531,12 @@ jQuery(document).ready(function($) {
 		$( '.wcs-table .wcs-action option:disabled').toggle( displayFeatures );
 
 		$( '.wcs-table .wcs-condition optgroup' ).each( function() {
+			var visibleOptions = $( 'option:not(:disabled)', this ).length;
+
+			$( this ).toggle( ( visibleOptions > 0 || displayFeatures ) );
+		} );
+
+		$( '.wcs-table .wcs-action optgroup' ).each( function() {
 			var visibleOptions = $( 'option:not(:disabled)', this ).length;
 
 			$( this ).toggle( ( visibleOptions > 0 || displayFeatures ) );

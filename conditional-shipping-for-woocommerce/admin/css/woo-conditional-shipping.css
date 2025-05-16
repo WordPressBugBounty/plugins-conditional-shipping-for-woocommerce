@@ -281,6 +281,32 @@
   display: block;
 }
 
+.woocommerce table.form-table table.wcs-table tr.wcs-type-billing_company.wcs-operator-contains .wcs_text_value_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-shipping_company.wcs-operator-contains .wcs_text_value_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-billing_email .wcs_email_value_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-billing_email.wcs-operator-exists .wcs_email_value_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-type-billing_email.wcs-operator-notexists .wcs_email_value_input {
+  display: none;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-billing_phone .wcs_phone_value_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-billing_phone.wcs-operator-exists .wcs_phone_value_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-type-billing_phone.wcs-operator-notexists .wcs_phone_value_input {
+  display: none;
+}
+
 .woocommerce table.form-table table.wcs-table tr.wcs-type-shipping_postcode .wcs_postcode_value_input,
 .woocommerce table.form-table table.wcs-table tr.wcs-type-billing_postcode .wcs_postcode_value_input {
   display: block;
@@ -324,6 +350,23 @@
   line-height: 34px;
 }
 
+.woocommerce table.form-table table.wcs-table tr.wcs-type-orders .wcs_text_value_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-orders .wcs_orders_value_input {
+  display: block;
+  font-size: 12px;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-orders .wcs_orders_status_input {
+  margin: 5px 0;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-stock_status .wcs_stock_status_value_input {
+  display: block;
+}
+
 .woocommerce table.form-table table.wcs-table tr.wcs-type-user_pms_plans .wcs_user_pms_plans_input {
   display: block;
 }
@@ -336,24 +379,39 @@
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_price .wcs_price_value_input,
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-increase_price .wcs_price_value_input,
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-decrease_price .wcs_price_value_input {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 5px;
 }
 
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_price .wcs_price_value_input input[type="number"],
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-increase_price .wcs_price_value_input input[type="number"],
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-decrease_price .wcs_price_value_input input[type="number"] {
-  margin-right: 5px;
-  flex: auto;
-  width: 60% !important;
+  width: 100% !important;
   min-width: 0 !important;
+  min-height: 34px;
 }
 
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_price .wcs_price_value_input select,
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-increase_price .wcs_price_value_input select,
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-decrease_price .wcs_price_value_input select {
-  flex: auto;
-  width: 40%;
+  width: 100%;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_price .wcs_price_value_input .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-increase_price .wcs_price_value_input .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-decrease_price .wcs_price_value_input .wcs_price_per_input {
+  display: none;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_price.wcs-price-mode-per_piece .wcs_price_per_input, .woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_price.wcs-price-mode-per_volume .wcs_price_per_input, .woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_price.wcs-price-mode-per_weight_unit .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-increase_price.wcs-price-mode-per_piece .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-increase_price.wcs-price-mode-per_volume .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-increase_price.wcs-price-mode-per_weight_unit .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-decrease_price.wcs-price-mode-per_piece .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-decrease_price.wcs-price-mode-per_volume .wcs_price_per_input,
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-decrease_price.wcs-price-mode-per_weight_unit .wcs_price_per_input {
+  display: block !important;
 }
 
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-set_title .wcs_title_value_input {

@@ -233,6 +233,17 @@
 	tr.wcs-type-coupon .wcs_coupon_value_input { display: block; }
 	tr.wcs-type-currency .wcs_currency_value_input { display: block; }
 
+	tr.wcs-type-billing_company.wcs-operator-contains .wcs_text_value_input { display: block; }
+	tr.wcs-type-shipping_company.wcs-operator-contains .wcs_text_value_input { display: block; }
+
+	tr.wcs-type-billing_email .wcs_email_value_input { display: block; }
+	tr.wcs-type-billing_email.wcs-operator-exists .wcs_email_value_input,
+	tr.wcs-type-billing_email.wcs-operator-notexists .wcs_email_value_input { display: none; }
+	
+	tr.wcs-type-billing_phone .wcs_phone_value_input { display: block; }
+	tr.wcs-type-billing_phone.wcs-operator-exists .wcs_phone_value_input,
+	tr.wcs-type-billing_phone.wcs-operator-notexists .wcs_phone_value_input { display: none; }
+
 	tr.wcs-type-shipping_postcode .wcs_postcode_value_input,
 	tr.wcs-type-billing_postcode .wcs_postcode_value_input { display: block; }
 
@@ -264,6 +275,20 @@
 		}
 	}
 
+	tr.wcs-type-orders {
+		.wcs_text_value_input { display: block; }
+
+		.wcs_orders_value_input { display: block; font-size: 12px; }
+
+		.wcs_orders_status_input {
+			margin: 5px 0;
+		}
+	}
+
+	tr.wcs-type-stock_status .wcs_stock_status_value_input {
+		display: block;
+	}
+
 	tr.wcs-type-user_pms_plans .wcs_user_pms_plans_input {
 		display: block;
 	}
@@ -279,19 +304,30 @@
 	tr.wcs-action-type-increase_price,
 	tr.wcs-action-type-decrease_price {
 		.wcs_price_value_input {
-			display: flex;
-			flex-wrap: nowrap;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+			gap: 5px;
 
 			input[type="number"] {
-				margin-right: 5px;
-				flex: auto;
-				width: 60% !important;
+				width: 100% !important;
 				min-width: 0 !important;
+				min-height: 34px;
 			}
 
 			select {
-				flex: auto;
-				width: 40%;
+				width: 100%;
+			}
+
+			.wcs_price_per_input {
+				display: none;
+			}
+		}
+
+		&.wcs-price-mode-per_piece,
+		&.wcs-price-mode-per_volume,
+		&.wcs-price-mode-per_weight_unit {
+			.wcs_price_per_input {
+				display: block !important;
 			}
 		}
 	}

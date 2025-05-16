@@ -28,6 +28,9 @@ class Woo_Conditional_Shipping_Frontend {
 		if ( ! get_option( 'wcs_disable_all', false ) ) {
 			add_filter( 'woocommerce_package_rates', array( $this, 'filter_shipping_methods' ), 100, 2 );
 
+			// Store all post data into the session so data can be used in filters
+			add_action( 'woocommerce_checkout_update_order_review', [ $this, 'store_customer_details' ], 10, 1 );
+
 			// Multicurrency support
 			add_filter( 'wcs_convert_price', [ $this, 'convert_price' ], 10, 1 );
 			add_filter( 'wcs_convert_price_reverse', [ $this, 'convert_price_reverse' ], 10, 1 );
@@ -55,6 +58,10 @@ class Woo_Conditional_Shipping_Frontend {
 				[ 'jquery' ],
 				WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION
 			);
+
+			wp_localize_script( 'woo-conditional-shipping-js', 'conditional_shipping_settings', [
+				'trigger_fields' => $this->get_trigger_fields(),
+			] );
 		}
 
 		wp_enqueue_style( 'woo_conditional_shipping_css', plugin_dir_url( __FILE__ ) . '../../frontend/css/woo-conditional-shipping.css', [], WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION );
@@ -128,6 +135,62 @@ class Woo_Conditional_Shipping_Frontend {
 				'readonly' => true,
 			],
 		];
+	}
+
+	/**
+	 * Get fields which require manual trigger for checkout update
+	 * 
+	 * By default changing first name, last name, company and certain other fields
+	 * do not trigger checkout update. Thus we need to trigger update manually if we have
+	 * conditions for these fields.
+	 * 
+	 * Triggering will be done in JS. However, we check here if we have conditions for these
+	 * fields. If we dont have, we dont want to trigger update as that would be unnecessary.
+	 */
+	public function get_trigger_fields() {
+		$ruleset_fields = get_option( 'wcs_ruleset_fields', [] );
+
+		$trigger_fields = [];
+		foreach ( $ruleset_fields as $ruleset_id => $fields ) {
+			$trigger_fields = array_merge( $trigger_fields, $fields );
+		}
+
+		return array_unique( $trigger_fields );
+	}
+
+  	/**
+   	 * Store customer details to the session for being used in filters
+   	 */
+	public function store_customer_details( $post_data ) {
+		$data = [];
+		parse_str( $post_data, $data );
+
+		$attrs = [
+			'billing_first_name', 'billing_last_name', 'billing_company',
+			'shipping_first_name', 'shipping_last_name', 'shipping_company',
+			'billing_email', 'billing_phone'
+		];
+
+		$same_addr = false;
+		if ( ! isset( $data['ship_to_different_address'] ) || $data['ship_to_different_address'] != '1' ) {
+			$same_addr = true;
+			$attrs = [
+				'billing_first_name', 'billing_last_name', 'billing_company', 'billing_email', 'billing_phone',
+			];
+		}
+
+		foreach ( $attrs as $attr ) {
+			WC()->customer->set_props( [
+				$attr => isset( $data[$attr] ) ? wp_unslash( $data[$attr] ) : null,
+			] );
+
+			if ( $same_addr ) {
+			$attr2 = str_replace( 'billing', 'shipping', $attr );
+				WC()->customer->set_props( [
+					$attr2 => isset( $data[$attr] ) ? wp_unslash( $data[$attr] ) : null,
+				] );
+			}
+		}
 	}
  
 	/**
@@ -217,7 +280,7 @@ class Woo_Conditional_Shipping_Frontend {
 		// We cannot use $this->passed_rule_ids directly since this function is not evaluated
 		// if rates are fetched from WC cache. Thus we use session which will always contain
 		// passed_rule_ids
-		WC()->session->set( 'wcp_passed_rule_ids', $this->passed_rule_ids );
+		WC()->session->set( 'wcs_passed_rule_ids', $this->passed_rule_ids );
 
 		$this->debug->record_rates( $rates, 'after' );
 

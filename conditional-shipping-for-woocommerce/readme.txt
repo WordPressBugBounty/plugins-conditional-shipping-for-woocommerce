@@ -2,9 +2,9 @@
 Contributors: wooelements
 Tags: woocommerce shipping, conditional shipping
 Requires at least: 4.6
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 3.4.1
+Stable tag: 3.5.0
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,10 @@ If you have dynamic / live shipping rates such as USPS, you will need to use **M
 That should be all. Any questions / issues / bug reports feel free to create a post on [WordPress.org support forum](https://wordpress.org/support/plugin/conditional-shipping-for-woocommerce/).
 
 == Changelog ==
+
+= 3.5.0 =
+
+* Minor UI improvements
 
 = 3.4.1 =
 

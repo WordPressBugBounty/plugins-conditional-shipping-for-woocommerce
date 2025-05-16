@@ -124,6 +124,8 @@ class Woo_Conditional_Shipping_Admin {
 
         wp_delete_post( $ruleset_id, false );
 
+        $this->store_conditions( $ruleset_id, true );
+
         $url = admin_url( 'admin.php?page=wc-settings&tab=shipping&section=woo_conditional_shipping' );
         wp_safe_redirect( $url );
         exit;
@@ -288,12 +290,60 @@ class Woo_Conditional_Shipping_Admin {
         }
       }
 
+      // Store conditions
+      $this->store_conditions( $post->ID );
+
       $url = add_query_arg( array(
         'ruleset_id' => $post->ID,
       ), admin_url( 'admin.php?page=wc-settings&tab=shipping&section=woo_conditional_shipping' ) );
       wp_safe_redirect( $url );
       exit;
     }
+  }
+
+  /**
+   * Store what fields are used so we can trigger
+   * checkout updates
+   */
+  public function store_conditions( $ruleset_id, $delete = false ) {
+    $ruleset_fields = get_option( 'wcs_ruleset_fields', [] );
+
+    if ( $delete ) {
+      unset( $ruleset_fields[$ruleset_id] );
+      update_option( 'wcs_ruleset_fields', $ruleset_fields );
+      return;
+    }
+
+    $ruleset = new Woo_Conditional_Shipping_Ruleset( $ruleset_id );
+
+    // If ruleset is disabled, delete fields
+    if ( ! $ruleset->get_enabled() ) {
+      unset( $ruleset_fields[$ruleset_id] );
+      update_option( 'wcs_ruleset_fields', $ruleset_fields );
+      return;
+    }
+
+    $fields = [
+      'billing_first_name', 'billing_last_name', 'billing_company',
+      'shipping_first_name', 'shipping_last_name', 'shipping_company',
+      'billing_email', 'billing_phone',
+    ];
+
+    $found_fields = [];
+    foreach ( $ruleset->get_conditions() as $condition ) {
+      if ( in_array( $condition['type'], $fields, true ) ) {
+        $found_fields[] = $condition['type'];
+      }
+
+      // Special handling for "previous orders - match guests by email"
+      if ( $condition['type'] === 'orders' && isset( $condition['orders_match_guests_by_email'] ) && $condition['orders_match_guests_by_email'] ) {
+        $found_fields[] = 'billing_email';
+      }
+    }
+
+    $ruleset_fields[$ruleset_id] = array_unique( $found_fields );
+
+    update_option( 'wcs_ruleset_fields', $ruleset_fields );
   }
 
   /**
@@ -333,15 +383,14 @@ class Woo_Conditional_Shipping_Admin {
       // Increments the transient version to invalidate cache.
 		  WC_Cache_Helper::get_transient_version( 'shipping', true );
 
-      echo json_encode( array(
+      $this->store_conditions( $post->ID );
+
+      wp_send_json( [
         'enabled' => ( get_post_meta( $post->ID, '_wcs_enabled', true ) === 'yes' ),
-      ) );
-      
-      die;
+      ], 200 );
     }
 
-    http_response_code(422);
-    die;
+    wp_send_json( null, 422 );
   }
 
   /**

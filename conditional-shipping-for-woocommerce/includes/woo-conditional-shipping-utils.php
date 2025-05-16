@@ -86,14 +86,32 @@ function woo_conditional_shipping_operators() {
 function wcs_get_price_modes() {
   $currency_symbol = get_woocommerce_currency_symbol();
 
-  return [
+  $options = [
     'fixed' => $currency_symbol,
     'per_weight_unit' => sprintf( __( '%s per %s', 'conditional-shipping-for-woocommerce' ), $currency_symbol, get_option( 'woocommerce_weight_unit' ) ),
     'per_volume' => sprintf( __( '%s per %s', 'conditional-shipping-for-woocommerce' ), $currency_symbol, wcs_get_volume_unit() ),
-    'per_piece' => sprintf( __( '%s per piece', 'conditional-shipping-for-woocommerce' ), $currency_symbol ),
+    'per_piece' => sprintf( __( '%s per pcs', 'conditional-shipping-for-woocommerce' ), $currency_symbol ),
     'pct' => __( '% of subtotal', 'conditional-shipping-for-woocommerce' ),
     'pct_shipping' => __( '% of shipping', 'conditional-shipping-for-woocommerce' ),
   ];
+
+  return $options;
+}
+
+/**
+ * Get price per options
+ */
+function wcs_get_price_per_options() {
+  $options = [
+    '' => __( 'of all products', 'conditional-shipping-for-woocommerce' ),
+  ];
+
+  $classes = woo_conditional_shipping_get_shipping_class_options();
+  foreach ( $classes as $id => $title ) {
+    $options[$id] = sprintf( __( 'of %s', 'conditional-shipping-for-woocommerce' ), $title );
+  }
+
+  return $options;
 }
 
 /**
@@ -159,6 +177,11 @@ function woo_conditional_shipping_filter_groups() {
         'product_attrs' => [
           'title' => __( 'Product Attributes', 'conditional-shipping-for-woocommerce' ),
           'operators' => [ 'in', 'notin', 'exclusive' ],
+          'pro' => true,
+        ],
+        'stock_status' => [
+          'title' => __( 'Stock Status', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [ 'in', 'notin' ],
           'pro' => true,
         ],
         'coupon' => [
@@ -236,11 +259,21 @@ function woo_conditional_shipping_filter_groups() {
           'operators' => array( 'is', 'isnot' ),
           'pro' => true,
         ),
+        'orders' => [
+          'title' => __( 'Previous orders', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
+          'pro' => true,
+        ],
       ),
     ],
     'billing_address' => [
       'title' => __( 'Billing Address', 'conditional-shipping-for-woocommerce' ),
       'filters' => array(
+        'billing_company' => [
+          'title' => __( 'Company (billing)', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [ 'exists', 'notexists', 'contains' ],
+          'pro' => true,
+        ],
         'billing_city' => array(
           'title' => __( 'City (billing)', 'conditional-shipping-for-woocommerce' ),
           'operators' => array( 'is', 'isnot' ),
@@ -261,11 +294,26 @@ function woo_conditional_shipping_filter_groups() {
           'operators' => array( 'is', 'isnot' ),
           'pro' => true,
         ),
+        'billing_email' => [
+          'title' => __( 'Email (billing)', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [ 'is', 'isnot', 'exists', 'notexists' ],
+          'pro' => true,
+        ],
+        'billing_phone' => [
+          'title' => __( 'Phone (billing)', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [ 'is', 'isnot', 'exists', 'notexists' ],
+          'pro' => true,
+        ],
       ),
     ],
     'shipping_address' => [
       'title' => __( 'Shipping Address', 'conditional-shipping-for-woocommerce' ),
       'filters' => array(
+        'shipping_company' => [
+          'title' => __( 'Company (shipping)', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [ 'exists', 'notexists', 'contains' ],
+          'pro' => true,
+        ],
         'shipping_city' => array(
           'title' => __( 'City (shipping)', 'conditional-shipping-for-woocommerce' ),
           'operators' => array( 'is', 'isnot' ),
@@ -334,35 +382,80 @@ function woo_conditional_shipping_actions() {
   return apply_filters( 'woo_conditional_shipping_actions', [
     'disable_shipping_methods' => [
       'title' => __( 'Disable shipping methods', 'conditional-shipping-for-woocommerce' ),
+      'group' => 'availability',
     ],
     'enable_shipping_methods' => [
       'title' => __( 'Enable shipping methods', 'conditional-shipping-for-woocommerce' ),
+      'group' => 'availability',
     ],
     'set_price' => [
       'title' => __( 'Set shipping method price', 'conditional-shipping-for-woocommerce' ),
       'pro' => true,
+      'group' => 'pricing',
     ],
     'increase_price' => [
       'title' => __( 'Increase shipping method price', 'conditional-shipping-for-woocommerce' ),
       'pro' => true,
+      'group' => 'pricing',
     ],
     'decrease_price' => [
       'title' => __( 'Decrease shipping method price', 'conditional-shipping-for-woocommerce' ),
       'pro' => true,
+      'group' => 'pricing',
     ],
     'set_title' => [
       'title' => __( 'Set shipping method title', 'conditional-shipping-for-woocommerce' ),
       'pro' => true,
+      'group' => 'other',
     ],
     'custom_error_msg' => [
       'title' => __( 'Set custom no shipping message', 'conditional-shipping-for-woocommerce' ),
       'pro' => true,
+      'group' => 'messages',
     ],
     'shipping_notice' => [
       'title' => __( 'Set shipping notice', 'conditional-shipping-for-woocommerce' ),
       'pro' => true,
+      'group' => 'messages',
     ],
   ] );
+}
+
+/**
+ * Get grouped actions
+ */
+function wcs_get_grouped_actions() {
+  $actions = woo_conditional_shipping_actions();
+  $groups = [
+    'availability' => [
+      'title' => __( 'Availability', 'conditional-shipping-for-woocommerce' ),
+      'actions' => [],
+    ],
+    'pricing' => [
+      'title' => __( 'Pricing', 'conditional-shipping-for-woocommerce' ),
+      'actions' => [],
+    ],
+    'messages' => [
+      'title' => __( 'Messages', 'conditional-shipping-for-woocommerce' ),
+      'actions' => [],
+    ],
+    'other' => [
+      'title' => __( 'Other', 'conditional-shipping-for-woocommerce' ),
+      'actions' => [],
+    ],
+  ];
+
+  foreach ( $actions as $key => $action ) {
+    $group = isset( $action['group'] ) ? $action['group'] : 'other';
+
+    if ( isset( $groups[$group] ) ) {
+      $groups[$group]['actions'][$key] = $action;
+    } else {
+      $groups['other']['actions'][$key] = $action;
+    }
+  }
+
+  return $groups;
 }
 
 /**
@@ -589,6 +682,29 @@ function woo_conditional_shipping_get_category_options() {
 }
 
 /**
+ * Get stock status options
+ */
+function wcs_get_stock_status_options() {
+  $options = [
+    'instock' => __( 'In stock', 'conditional-shipping-for-woocommerce' ),
+    'backorders' => __( 'Backorders', 'conditional-shipping-for-woocommerce' ),
+  ];
+
+  return $options;
+}
+
+/**
+ * Get order status options
+ */
+function wcs_order_status_options() {
+  if ( ! function_exists( 'wc_get_order_statuses' ) ) {
+    return [];
+  }
+
+  return wc_get_order_statuses();
+}
+
+/**
  * Output term tree into a select field options
  */
 function woo_conditional_shipping_flatten_terms( &$options, $cats, $depth = 0 ) {
@@ -629,7 +745,9 @@ function woo_conditional_shipping_sort_terms_hierarchicaly( Array &$cats, Array 
 function woo_conditional_shipping_role_options() {
   global $wp_roles;
   
-  $options = array();
+  $options = [
+    'guest' => __( 'Guest', 'conditional-shipping-for-woocommerce')
+  ];
 
   if ( is_a( $wp_roles, 'WP_Roles' ) && isset( $wp_roles->roles ) ) {
     $roles = $wp_roles->roles;
@@ -939,67 +1057,97 @@ function wcs_get_control_title( $control ) {
 }
 
 /**
- * Get cart weight
+ * Get items matching a subset for a price action
  */
-function wcs_get_cart_weight() {
+function wcs_get_action_subset_items( $action ) {
+  $items = [];
+
   if ( function_exists( 'WC' ) ) {
     $cart = WC()->cart;
     
     if ( is_callable( [ $cart, 'get_cart' ] ) ) {
-      $weight = 0;
       foreach ( $cart->get_cart() as $item ) {
         $product = $item['data'];
 
         if ( ! $product->needs_shipping() ) {
           continue;
         }
-  
-        $weight += floatval( apply_filters( 'wcs_item_weight', $product->get_weight(), $item ) ) * floatval( $item['quantity'] );
-      }
 
-      return $weight;
+        // Products from a shipping class
+        if ( isset( $action['price_per'] ) && $action['price_per'] !== '' ) {
+          $shipping_class_id = Woo_Conditional_Shipping_Filters::get_product_shipping_class_id( $product );
+
+          if ( intval( $shipping_class_id ) === intval( $action['price_per'] ) ) {
+            $items[] = $item;
+          }
+        }
+        // All products
+        else {
+          $items[] = $item;
+        }
+      }
     }
   }
 
-  return 0;
+  return $items;
+}
+
+/**
+ * Get cart count
+ */
+function wcs_get_cart_count( $action ) {
+  $items = wcs_get_action_subset_items( $action );
+
+  $count = 0;
+  foreach ( $items as $item ) {
+    $count += floatval( $item['quantity'] );
+  }
+
+  return $count;
+}
+
+/**
+ * Get cart weight
+ */
+function wcs_get_cart_weight( $action ) {
+  $items = wcs_get_action_subset_items( $action );
+
+  $weight = 0;
+  foreach ( $items as $item ) {
+    $product = $item['data'];
+
+    $weight += floatval( apply_filters( 'wcs_item_weight', $product->get_weight(), $item ) ) * floatval( $item['quantity'] );
+  }
+
+  return $weight;
 }
 
 /**
  * Get cart volume
  */
-function wcs_get_cart_volume() {
-  if ( function_exists( 'WC' ) ) {
-    $cart = WC()->cart;
-    
-    if ( is_callable( [ $cart, 'get_cart' ] ) ) {
-      $volume = 0;
-      foreach ( $cart->get_cart() as $item ) {
-        $product = $item['data'];
+function wcs_get_cart_volume( $action ) {
+  $items = wcs_get_action_subset_items( $action );
 
-        if ( ! $product->needs_shipping() ) {
-          continue;
-        }
+  $volume = 0;
+  foreach ( $items as $item ) {
+    $product = $item['data'];
 
-        $length = apply_filters( 'wcs_item_length', $product->get_length(), $item );
-        $width = apply_filters( 'wcs_item_width', $product->get_width(), $item );
-        $height = apply_filters( 'wcs_item_height', $product->get_height(), $item );
+    $length = apply_filters( 'wcs_item_length', $product->get_length(), $item );
+    $width = apply_filters( 'wcs_item_width', $product->get_width(), $item );
+    $height = apply_filters( 'wcs_item_height', $product->get_height(), $item );
 
-        if ( is_numeric ( $length ) && is_numeric( $width ) && is_numeric( $height ) ) {
-          $volume += ( $length * $width * $height ) * $item['quantity'];
-        }
-      }
-
-      // Convert volume from mm3 and cm3 to m3
-      $dimension_unit = get_option( 'woocommerce_dimension_unit' );
-      if ( in_array( $dimension_unit, [ 'mm', 'cm' ], true ) ) {
-        $volume = wcs_convert_volume( $volume, $dimension_unit, 'm' );
-      }
-
-      return $volume;
+    if ( is_numeric ( $length ) && is_numeric( $width ) && is_numeric( $height ) ) {
+      $volume += ( $length * $width * $height ) * $item['quantity'];
     }
   }
 
-  return 0;
+  // Convert volume from mm3 and cm3 to m3
+  $dimension_unit = get_option( 'woocommerce_dimension_unit' );
+  if ( in_array( $dimension_unit, [ 'mm', 'cm' ], true ) ) {
+    $volume = wcs_convert_volume( $volume, $dimension_unit, 'm' );
+  }
+
+  return $volume;
 }
 
 /**

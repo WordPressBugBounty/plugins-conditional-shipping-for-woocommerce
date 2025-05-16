@@ -54,7 +54,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tbody>
 					<tfoot>
 						<tr>
-							<td colspan="4" class="forminp">
+							<td colspan="4">
 								<button type="button" class="button" id="wcs-add-condition"><?php _e( 'Add Condition', 'conditional-shipping-for-woocommerce' ); ?></button>
 								<select name="wcs_operator">
 									<option value="and" <?php selected( 'and', $ruleset->get_conditions_operator() ); ?>><?php _e( 'All conditions have to pass (AND)', 'conditional-shipping-for-woocommerce' ); ?></option>
@@ -87,7 +87,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tbody>
 					<tfoot>
 						<tr>
-							<td colspan="4" class="forminp">
+							<td colspan="4">
 								<button type="button" class="button" id="wcs-add-action"><?php esc_html_e( 'Add Action', 'conditional-shipping-for-woocommerce' ); ?></button>
 							</td>
 						</tr>
@@ -214,6 +214,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<label for="wcs-items-unique-only-{{data.index}}"><?php esc_html_e( 'Count unique items only', 'conditional-shipping-for-woocommerce' ); ?></label>
 			</div>
 
+			<div class="value_input wcs_orders_value_input">
+				<div class="wcs_orders_status_input">
+					<select name="wcs_conditions[{{data.index}}][orders_status][]" class="wc-enhanced-select" multiple="multiple" data-placeholder="<?php esc_attr_e( 'Order statuses', 'conditional-shipping-for-woocommerce' ); ?>">
+						<?php foreach( wcs_order_status_options() as $value => $label ) { ?>
+							<option
+								value="<?php echo esc_attr( $value ); ?>"
+								<# if ( data.orders_status && jQuery.inArray( '<?php echo esc_js( $value ); ?>', data.orders_status ) !== -1 ) { #>
+									selected
+								<# } #>
+							>
+								<?php echo wcs_esc_html( $label ); ?>
+							</option>
+						<?php } ?>
+					</select>
+				</div>
+
+				<div>
+					<input type="checkbox" id="wcs-orders-match-guests-by-email-{{data.index}}" value="1" name="wcs_conditions[{{data.index}}][orders_match_guests_by_email]" <# if ( data.orders_match_guests_by_email ) { #>checked<# } #> />
+					<label for="wcs-orders-match-guests-by-email-{{data.index}}"><?php esc_html_e( 'Match guests by email', 'conditional-shipping-for-woocommerce' ); ?></label>
+				</div>
+			</div>
+
+			<div class="value_input wcs_stock_status_value_input">
+				<select name="wcs_conditions[{{data.index}}][stock_status][]" multiple class="select wc-enhanced-select">
+					<?php foreach ( wcs_get_stock_status_options() as $key => $label) { ?>
+						<option value="<?php echo esc_attr( $key ); ?>" <# if ( data.stock_status && data.stock_status.indexOf("<?php echo esc_js( $key ); ?>") !== -1 ) { #>selected<# } #>><?php echo wcs_esc_html( $label ); ?></option>
+					<?php } ?>
+				</select>
+			</div>
+
 			<div class="value_input wcs_shipping_class_value_input">
 				<select name="wcs_conditions[{{data.index}}][shipping_class_ids][]" multiple class="select wc-enhanced-select">
 					<?php foreach ( woo_conditional_shipping_get_shipping_class_options() as $key => $label ) { ?>
@@ -279,6 +309,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<textarea name="wcs_conditions[{{data.index}}][postcodes]" class="" placeholder="<?php esc_attr_e( 'List 1 postcode per line', 'woocommerce' ); ?>">{{ data.postcodes }}</textarea>
 
 				<div class="wcs-desc"><?php esc_html_e( 'Postcodes containing wildcards (e.g. CB23*) or fully numeric ranges (e.g. <code>90210...99000</code>) are also supported.', 'conditional-shipping-for-woocommerce' ); ?></div>
+			</div>
+
+			<div class="value_input wcs_email_value_input">
+				<textarea name="wcs_conditions[{{data.index}}][emails]" class="" placeholder="<?php esc_attr_e( 'List 1 email address per line', 'conditional-shipping-for-woocommerce' ); ?>">{{ data.emails }}</textarea>
+			</div>
+
+			<div class="value_input wcs_phone_value_input">
+				<textarea name="wcs_conditions[{{data.index}}][phones]" class="" placeholder="<?php esc_attr_e( 'List 1 phone number per line', 'conditional-shipping-for-woocommerce' ); ?>">{{ data.phones }}</textarea>
 			</div>
 
 			<div class="value_input wcs_city_value_input">
@@ -434,14 +472,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<td class="wcs-action">
 			<select name="wcs_actions[{{data.index}}][type]" class="wcs_action_type_select">
 				<option value=""><?php echo wcs_esc_html( __( '- Select action - ', 'conditional-shipping-for-woocommerce' ) ); ?></option>
-				<?php foreach ( woo_conditional_shipping_actions() as $key => $action ) { ?>
-					<option
-						value="<?php echo esc_attr( $key ); ?>"
-						<?php echo ( isset( $action['pro'] ) && $action['pro'] ) ? 'disabled' : ''; ?>
-						<# if ( data.type == '<?php echo esc_js( $key ); ?>' ) { #>selected<# } #>
-					>
-						<?php echo esc_html( wcs_get_control_title( $action ) ); ?>
-					</option>
+				<?php foreach ( wcs_get_grouped_actions() as $group_id => $group ) { ?>
+					<optgroup label="<?php echo esc_attr( $group['title'] ); ?>">
+						<?php foreach ( $group['actions'] as $key => $action ) { ?>
+							<option
+								value="<?php echo esc_attr( $key ); ?>"
+								<?php echo ( isset( $action['pro'] ) && $action['pro'] ) ? 'disabled' : ''; ?>
+								<# if ( data.type == '<?php echo esc_js( $key ); ?>' ) { #>selected<# } #>
+							>
+								<?php echo esc_html( wcs_get_control_title( $action ) ); ?>
+							</option>
+						<?php } ?>
+					</optgroup>
 				<?php } ?>
 			</select>
 
@@ -473,13 +515,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 			<div class="value_input wcs_price_value_input">
-				<input name="wcs_actions[{{data.index}}][price]" type="number" step="any" value="{{ data.price }}" />
+				<div>
+					<input name="wcs_actions[{{data.index}}][price]" type="number" step="any" value="{{ data.price }}" />
+				</div>
 
-				<select name="wcs_actions[{{data.index}}][price_mode]">
-					<?php foreach( wcs_get_price_modes() as $key => $label ) { ?>
-						<option value="<?php echo esc_attr( $key ); ?>" <# if ( data.price_mode === "<?php echo esc_attr( $key ); ?>" ) { #>selected<# } #>><?php echo esc_html( $label ); ?></option>
-					<?php } ?>
-				</select>
+				<div>
+					<select name="wcs_actions[{{data.index}}][price_mode]" class="wcs-price-mode">
+						<?php foreach( wcs_get_price_modes() as $key => $title ) { ?>
+							<option value="<?php echo esc_attr( $key ); ?>" <# if ( data.price_mode === "<?php echo esc_attr( $key ); ?>" ) { #>selected<# } #>><?php echo esc_html( $title ); ?></option>
+						<?php } ?>
+					</select>
+				</div>
+
+				<div class="wcs_price_per_input">
+					<select name="wcs_actions[{{data.index}}][price_per]">
+						<?php foreach( wcs_get_price_per_options() as $key => $title ) { ?>
+							<option value="<?php echo esc_attr( $key ); ?>" <# if ( data.price_per === "<?php echo esc_attr( $key ); ?>" ) { #>selected<# } #>><?php echo esc_html( $title ); ?></option>
+						<?php } ?>
+					</select>
+				</div>
 			</div>
 
 			<div class="value_input wcs_title_value_input">
