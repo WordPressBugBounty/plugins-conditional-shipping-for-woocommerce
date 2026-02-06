@@ -31,6 +31,9 @@ class Woo_Conditional_Shipping_Frontend {
 			// Store all post data into the session so data can be used in filters
 			add_action( 'woocommerce_checkout_update_order_review', [ $this, 'store_customer_details' ], 10, 1 );
 
+			// Add trigger fields to the destination to trigger shipping method recalculation
+			add_filter( 'woocommerce_cart_shipping_packages', [ $this, 'add_trigger_fields_to_destination' ], 10, 1 );
+
 			// Multicurrency support
 			add_filter( 'wcs_convert_price', [ $this, 'convert_price' ], 10, 1 );
 			add_filter( 'wcs_convert_price_reverse', [ $this, 'convert_price_reverse' ], 10, 1 );
@@ -87,6 +90,13 @@ class Woo_Conditional_Shipping_Frontend {
 
 			add_action(
 				'woocommerce_blocks_checkout_block_registration',
+				function( $integration_registry ) {
+					$integration_registry->register( new Woo_Conditional_Shipping_Integration() );
+				}
+			);
+
+			add_action(
+				'woocommerce_blocks_cart_block_registration',
 				function( $integration_registry ) {
 					$integration_registry->register( new Woo_Conditional_Shipping_Integration() );
 				}
@@ -156,6 +166,31 @@ class Woo_Conditional_Shipping_Frontend {
 		}
 
 		return array_unique( $trigger_fields );
+	}
+
+	/**
+	 * Add trigger fields to the destination to trigger shipping method recalculation
+	 */
+	public function add_trigger_fields_to_destination( $packages ) {
+		if ( is_array( $packages ) ) {
+			$fields = $this->get_trigger_fields();
+
+			if ( ! empty( $fields ) ) {
+				foreach ( $packages as $key => $package ) {
+					if ( isset( $package['destination'] ) && is_array( $package['destination'] ) ) {
+						foreach ( $fields as $field ) {
+							$func = 'get_' . $field;
+
+							if ( is_callable( [ WC()->customer, $func ] ) ) {
+								$packages[$key]['destination']['wcs_' . $field] = call_user_func( [ WC()->customer, $func ] );
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $packages;
 	}
 
   	/**
@@ -260,9 +295,7 @@ class Woo_Conditional_Shipping_Frontend {
 
 				if ( $action['type'] === 'shipping_notice' ) {
 					if ( $passes && $ruleset->notice_applicable( $action ) ) {
-						$notice = do_shortcode( strval( $action['notice'] ) );
-
-						$this->notices[] = sprintf( '<div class="conditional-shipping-notice">%s</div>', $notice );
+						$this->notices[] = wcs_render_notice( $action );
 					}
 				}
 

@@ -104,6 +104,10 @@
 
 	.value_input {
 		width: 100%;
+
+		&.has-error {
+			border-color: #c92a2a;
+		}
 	}
 
 	select {
@@ -191,11 +195,71 @@
 	tr.wcs-type-product_height .wcs_text_value_input { display: block; }
 	tr.wcs-type-product_length .wcs_text_value_input { display: block; }
 	tr.wcs-type-product_width .wcs_text_value_input { display: block; }
+	tr.wcs-type-product_price .wcs_text_value_input { display: block; }
 	
 	tr.wcs-type-product_weight .wcs_product_measurement_mode_input { display: block; }
 	tr.wcs-type-product_height .wcs_product_measurement_mode_input { display: block; }
 	tr.wcs-type-product_length .wcs_product_measurement_mode_input { display: block; }
 	tr.wcs-type-product_width .wcs_product_measurement_mode_input { display: block; }
+	tr.wcs-type-product_price .wcs_product_measurement_mode_input { display: block; }
+
+	/* Product meta */
+	tr.wcs-type-product_meta {
+		.wcs-condition {
+			.wcs-condition-inputs {
+				display: flex;
+				width: 100%;
+				flex-wrap: nowrap;
+
+				& > div {
+					flex: auto;
+					width: 50%;
+				}
+
+				.wcs_product_meta_key_input {
+					display: block;
+					margin-left: 10px;
+
+					.select2-container {
+						.select2-selection--single {
+							height: 34px !important;
+
+							.select2-selection__arrow {
+								height: 33px;
+							}
+						}
+
+						.select2-selection__rendered {
+							line-height: 34px !important;
+							padding-right: 24px !important;
+							padding-left: 8px !important;
+						}
+					}
+				}
+			}
+		}
+
+		// Display "highest", "lowest", "sum" options for
+		// numerical operators as well the value input
+		&.wcs-operator-gt, &.wcs-operator-gte, &.wcs-operator-lt,
+		&.wcs-operator-lte, &.wcs-operator-e {
+			.wcs_product_measurement_mode_input {
+				display: block;
+			}
+
+			.wcs_text_value_input {
+				display: block;
+			}
+		}
+
+		// Show textarea for textual values
+		&.wcs-operator-in, &.wcs-operator-exclusive,
+		&.wcs-operator-notin, &.wcs-operator-allin {
+			.wcs_textarea_value_input {
+				display: block;
+			}
+		}
+	}
 	
 	tr.wcs-type-items {
 		.wcs_text_value_input {
@@ -363,6 +427,25 @@
 
 		.wcs_notice_input {
 			display: block;
+
+			.wcs-notice-style {
+				margin-top: 5px;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: nowrap;
+
+				label {
+					display: block;
+					flex: none;
+					margin-right: 5px;
+					line-height: 34px;
+				}
+
+				select {
+					display: block;
+					flex: auto;
+				}
+			}
 		}
 	}
 }

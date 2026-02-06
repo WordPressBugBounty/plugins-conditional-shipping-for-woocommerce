@@ -4,6 +4,7 @@
   margin: 0 0 1.5em;
   table-layout: fixed;
   /* AND / OR select field */
+  /* Product meta */
 }
 
 .woocommerce table.form-table table.wcs-table td.wcs-condition,
@@ -100,6 +101,10 @@
 
 .woocommerce table.form-table table.wcs-table .value_input {
   width: 100%;
+}
+
+.woocommerce table.form-table table.wcs-table .value_input.has-error {
+  border-color: #c92a2a;
 }
 
 .woocommerce table.form-table table.wcs-table select {
@@ -213,6 +218,10 @@
   display: block;
 }
 
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_price .wcs_text_value_input {
+  display: block;
+}
+
 .woocommerce table.form-table table.wcs-table tr.wcs-type-product_weight .wcs_product_measurement_mode_input {
   display: block;
 }
@@ -226,6 +235,52 @@
 }
 
 .woocommerce table.form-table table.wcs-table tr.wcs-type-product_width .wcs_product_measurement_mode_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_price .wcs_product_measurement_mode_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta .wcs-condition .wcs-condition-inputs {
+  display: flex;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta .wcs-condition .wcs-condition-inputs > div {
+  flex: auto;
+  width: 50%;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta .wcs-condition .wcs-condition-inputs .wcs_product_meta_key_input {
+  display: block;
+  margin-left: 10px;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta .wcs-condition .wcs-condition-inputs .wcs_product_meta_key_input .select2-container .select2-selection--single {
+  height: 34px !important;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta .wcs-condition .wcs-condition-inputs .wcs_product_meta_key_input .select2-container .select2-selection--single .select2-selection__arrow {
+  height: 33px;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta .wcs-condition .wcs-condition-inputs .wcs_product_meta_key_input .select2-container .select2-selection__rendered {
+  line-height: 34px !important;
+  padding-right: 24px !important;
+  padding-left: 8px !important;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-gt .wcs_product_measurement_mode_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-gte .wcs_product_measurement_mode_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-lt .wcs_product_measurement_mode_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-lte .wcs_product_measurement_mode_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-e .wcs_product_measurement_mode_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-gt .wcs_text_value_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-gte .wcs_text_value_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-lt .wcs_text_value_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-lte .wcs_text_value_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-e .wcs_text_value_input {
+  display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-in .wcs_textarea_value_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-exclusive .wcs_textarea_value_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-notin .wcs_textarea_value_input, .woocommerce table.form-table table.wcs-table tr.wcs-type-product_meta.wcs-operator-allin .wcs_textarea_value_input {
   display: block;
 }
 
@@ -434,6 +489,25 @@
 
 .woocommerce table.form-table table.wcs-table tr.wcs-action-type-shipping_notice .wcs_notice_input {
   display: block;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-shipping_notice .wcs_notice_input .wcs-notice-style {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-shipping_notice .wcs_notice_input .wcs-notice-style label {
+  display: block;
+  flex: none;
+  margin-right: 5px;
+  line-height: 34px;
+}
+
+.woocommerce table.form-table table.wcs-table tr.wcs-action-type-shipping_notice .wcs_notice_input .wcs-notice-style select {
+  display: block;
+  flex: auto;
 }
 
 table.wcs-rulesets {

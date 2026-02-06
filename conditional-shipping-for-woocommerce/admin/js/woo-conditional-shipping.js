@@ -18,10 +18,12 @@ jQuery(document).ready(function($) {
 			this.conditions = table.data( 'conditions' );
 
 			this.initTagSearch();
+			this.initMetaSearch();
 			this.initCouponSearch();
 			this.initDatepicker();
 			this.insertExisting();
 			this.insertEmpty();
+			this.validateInputs();
 
 			if ( ! this.triggersInit ) {
 				this.triggerFieldUpdates();
@@ -187,6 +189,53 @@ jQuery(document).ready(function($) {
 		},
 
 		/**
+		 * Meta search
+		 */
+		initMetaSearch: function() {
+			$( document.body ).on( 'wc-enhanced-select-init', function() {
+				$( ':input.wcs-product-meta-field-search' ).filter( ':not(.enhanced)' ).each( function() {
+					var select2_args = {
+						allowClear : $( this ).data( 'allow_clear' ) ? true : false,
+						dropdownAutoWidth : true,
+						placeholder : $( this ).data( 'placeholder' ),
+						minimumInputLength: $( this ).data( 'minimum_input_length' ) ? $( this ).data( 'minimum_input_length' ) : 2,
+						escapeMarkup : function( m ) {
+							return m;
+						},
+						ajax: {
+							url: wc_enhanced_select_params.ajax_url,
+							dataType: 'json',
+							delay: 250,
+							data: function( params ) {
+								return {
+									term: params.term,
+									action: 'wcs_json_search_meta_keys',
+								};
+							},
+							processResults: function( data ) {
+								var terms = [];
+								if ( data ) {
+									$.each( data, function( id, term ) {
+										terms.push({
+											id: term.id,
+											text: term.name
+										});
+									});
+								}
+								return {
+									results: terms
+								};
+							},
+							cache: true
+						}
+					};
+
+					$( this ).selectWoo( select2_args ).addClass( 'enhanced' );
+				});
+			} );
+		},
+
+		/**
 		 * Tag search
 		 */
 		initTagSearch: function() {
@@ -328,6 +377,71 @@ jQuery(document).ready(function($) {
 				var row = $( this ).closest( 'tr' );
 				self.toggleValueInputs( row );
 			});
+		},
+
+		/**
+		 * Validate inputs
+		 */
+		validateInputs: function() {
+			var self = this;
+
+			// Clear previous errors
+			$(document).on('input', 'input.wcs_text_value_input', function () {
+				self.clearInputValidation($(this));
+			});
+			$(document).on('change', '.condition_row select', function () {
+				let row = $(this).closest('tr');
+				self.clearInputValidation($('input.wcs_text_value_input', row));
+			});
+
+			$('form#mainform').on('submit', function(e) {
+				// Check that all fields with "greater than", "less than" etc.
+				// have numerical values EXCEPT date and time
+				let rowElements = [
+					'tr.wcs-operator-gt',
+					'tr.wcs-operator-gte',
+					'tr.wcs-operator-lt',
+					'tr.wcs-operator-lte',
+					'tr.wcs-operator-e',
+				].join(', ');
+				let exclude = [
+					'.wcs-type-date',
+					'.wcs-type-time',
+				].join(', ');
+
+				$(rowElements).each(function () {
+					if ($(this).is(':not(' + exclude + ')')) {
+						let inputEl = $('input.wcs_text_value_input', this);
+
+						if (inputEl.is(':visible')) {
+							let inputValue = inputEl.val();
+							inputValue = inputValue.trim().replace(',', '.');
+
+							if (inputValue === '' || isNaN(inputValue)) {
+								self.markNumericInvalid(inputEl, 'Please enter a number.');
+								e.preventDefault();
+							}
+						}
+					}
+				});
+			});
+		},
+
+		/**
+		 * Mark input as invalid
+		 */
+		markNumericInvalid: function($input, message) {
+			$input.addClass('has-error');
+			$input[0].setCustomValidity(message);
+			$input[0].reportValidity();
+		},
+
+		/**
+		 * Clear input validation
+		 */
+		clearInputValidation: function($input) {
+			$input.removeClass('has-error');
+			$input[0].setCustomValidity('');
 		},
 
 		/**

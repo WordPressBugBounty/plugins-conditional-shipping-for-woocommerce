@@ -134,7 +134,16 @@ class Woo_Conditional_Shipping_Debug {
    * Get debug mode status
    */
   public function is_enabled() {
-    return (bool) get_option( 'wcs_debug_mode', false );
+    $debug_mode = strval( get_option( 'wcs_debug_mode', '' ) );
+
+    switch ( $debug_mode ) {
+      case '1':
+        return true;
+      case 'admin':
+        return current_user_can( 'manage_woocommerce' );
+    }
+
+    return false;
   }
 
   /**
@@ -187,6 +196,11 @@ class Woo_Conditional_Shipping_Debug {
    */
   public function add_condition( $ruleset_id, $condition_index, $condition, $result ) {
     if ( ! $this->is_enabled() ) {
+      return;
+    }
+
+    // Skip empty condition
+    if ( ! isset( $condition['type'] ) || empty( $condition['type'] ) ) {
       return;
     }
 
@@ -256,6 +270,11 @@ class Woo_Conditional_Shipping_Debug {
       return;
     }
 
+    // Skip empty action
+    if ( ! isset( $action['type'] ) || empty( $action['type'] ) ) {
+      return;
+    }
+
     $this->data['rulesets'][$ruleset_id]['actions'][$action_index] = $this->translate_action( $action, $passes );
   }
 
@@ -302,6 +321,7 @@ class Woo_Conditional_Shipping_Debug {
         $cols['value'] = $action['error_msg'];
         break;
       case 'shipping_notice':
+        $cols['methods'] = implode( ', ', $this->get_shipping_method_titles( $action ) );
         $cols['value'] = $action['notice'];
         break;
     }
@@ -367,6 +387,22 @@ class Woo_Conditional_Shipping_Debug {
     $value = $this->translate_condition_value( $condition );
 
     $cols = [ $filter ];
+
+    // Product meta
+    if ( $condition['type'] === 'product_meta' ) {
+      $meta_key = isset( $condition['meta_key'] ) ? $condition['meta_key'] : '';
+      $cols[0] = sprintf( '%s (%s)', $cols[0], $meta_key );
+
+      // Add highest / lowest for numerical product meta
+      if ( wcs_is_operator_numerical( $condition['operator'] ) ) {
+        $cols[] = $condition['product_measurement_mode'];
+      }
+    }
+
+    // highest / lowest for product measurements
+    if ( in_array( $condition['type'], [ 'product_height', 'product_width', 'product_length', 'product_weight', 'product_price' ], true ) && isset( $condition['product_measurement_mode'] ) ) {
+      $cols[] = $condition['product_measurement_mode'];
+    }
 
     // Subset filter
     if ( in_array( $condition['type'], [ 'subtotal', 'items', 'volume', 'weight' ], true ) && isset( $condition['subset_filter'] ) && ! empty( $condition['subset_filter'] ) ) {
@@ -439,6 +475,7 @@ class Woo_Conditional_Shipping_Debug {
       case 'product_height':
       case 'product_length':
       case 'product_width':
+      case 'product_price':
       case 'orders':
       case 'billing_company':
       case 'shipping_company':
@@ -447,6 +484,14 @@ class Woo_Conditional_Shipping_Debug {
         return implode( ', ', array_map( 'get_the_title', (array) $condition['product_ids'] ) );
       case 'shipping_class':
         return implode( ', ', $this->get_term_titles( (array) $condition['shipping_class_ids'], 'product_shipping_class' ) );
+      case 'product_meta':
+        if ( wcs_is_operator_numerical( $condition['operator'] ) ) {
+          return $condition['value'];
+        } else if ( wcs_is_operator_set( $condition['operator'] ) ) {
+          return $this->convert_list( $condition['textarea'] );
+        } else if ( wcs_is_operator_boolean( $condition['operator'] ) ) {
+          return '';
+        }
       case 'category':
         return implode( ', ', $this->get_term_titles( (array) $condition['category_ids'], 'product_cat' ) );
       case 'product_tags':

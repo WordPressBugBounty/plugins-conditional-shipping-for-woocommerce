@@ -222,28 +222,42 @@ function woo_conditional_shipping_filter_groups() {
       )
     ),
     'product_measurements' => [
-      'title' => __( 'Product Measurements', 'conditional-shipping-for-woocommerce' ),
+      'title' => __( 'Product', 'conditional-shipping-for-woocommerce' ),
       'filters' => array(
         'product_weight' => array(
-          'title' => sprintf( __( 'Weight (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_weight_unit' ) ),
+          'title' => sprintf( __( 'Product Weight (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_weight_unit' ) ),
           'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
           'pro' => true,
         ),
         'product_height' => array(
-          'title' => sprintf( __( 'Height (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_dimension_unit' ) ),
+          'title' => sprintf( __( 'Product Height (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_dimension_unit' ) ),
           'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
           'pro' => true,
         ),
         'product_length' => array(
-          'title' => sprintf( __( 'Length (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_dimension_unit' ) ),
+          'title' => sprintf( __( 'Product Length (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_dimension_unit' ) ),
           'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
           'pro' => true,
         ),
         'product_width' => array(
-          'title' => sprintf( __( 'Width (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_dimension_unit' ) ),
+          'title' => sprintf( __( 'Product Width (%s)', 'conditional-shipping-for-woocommerce' ), get_option( 'woocommerce_dimension_unit' ) ),
           'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
           'pro' => true,
         ),
+        'product_price' => array(
+          'title' => __( 'Product Price', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [ 'gt', 'gte', 'lt', 'lte', 'e' ],
+          'pro' => true,
+        ),
+        'product_meta' => [
+          'title' => __( 'Product Meta', 'conditional-shipping-for-woocommerce' ),
+          'operators' => [
+            'gt', 'gte', 'lt', 'lte', 'e',
+            'in', 'exclusive', 'notin',
+            'allin', 'exists', 'notexists',
+          ],
+          'pro' => true,
+        ]
       )
     ],
     'customer' => [
@@ -1223,6 +1237,27 @@ function wcs_get_active_rate_id() {
 }
 
 /**
+ * Check if operator is numerical
+ */
+function wcs_is_operator_numerical( $operator ) {
+  return in_array( $operator, [ 'gt', 'gte', 'lt', 'lte', 'e' ], true );
+}
+
+/**
+ * Check if operator is set based
+ */
+function wcs_is_operator_set( $operator ) {
+  return in_array( $operator, [ 'in', 'exclusive', 'notin', 'allin'  ], true );
+}
+
+/**
+ * Check if operator is boolean
+ */
+function wcs_is_operator_boolean( $operator ) {
+  return in_array( $operator, [ 'exists', 'notexists' ], true );
+}
+
+/**
  * Get active shipping rate
  */
 function wcs_get_active_rate() {
@@ -1266,4 +1301,41 @@ function wcs_pms_plan_options() {
   }
 
   return $options;
+}
+
+/**
+ * Notice styles
+ */
+function wcs_get_notice_styles() {
+  return [
+    'blank' => __( 'No styling', 'conditional-shipping-for-woocommerce' ),
+    'success' => __( 'Success', 'conditional-shipping-for-woocommerce' ),
+    'warning' => __( 'Warning', 'conditional-shipping-for-woocommerce' ),
+    'error' => __( 'Error', 'conditional-shipping-for-woocommerce' ),
+  ];
+}
+
+/**
+ * Render notice
+ */
+function wcs_render_notice( $action ) {
+  $style = '';
+  if ( isset( $action['notice_style'] ) && ! empty( $action['notice_style'] ) ) {
+    $style = $action['notice_style'];
+  }
+
+  $notice = do_shortcode( $action['notice'] );
+
+  return sprintf( '<div class="conditional-shipping-notice conditional-shipping-notice-style-%s">%s</div>', $style, $notice );
+}
+
+/**
+ * Debug mode options
+ */
+function wcs_debug_mode_options() {
+  return [
+    '' => __( 'Disabled', 'conditional-shipping-for-woocommerce' ),
+    'admin' => __( 'Admin only', 'conditional-shipping-for-woocommerce' ),
+    '1' => __( 'Public', 'conditional-shipping-for-woocommerce' ),
+  ];
 }

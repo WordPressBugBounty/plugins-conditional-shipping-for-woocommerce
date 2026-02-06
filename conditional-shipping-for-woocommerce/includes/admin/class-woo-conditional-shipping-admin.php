@@ -197,7 +197,12 @@ class Woo_Conditional_Shipping_Admin {
     global $current_section;
     
     if ( 'woo_conditional_shipping' === $current_section && isset( $_POST['wcs_settings'] ) ) {
-      update_option( 'wcs_debug_mode', ( isset( $_POST['wcs_debug_mode'] ) && $_POST['wcs_debug_mode'] ) );
+      $debug = '';
+      if ( isset( $_POST['wcs_debug_mode'] ) && in_array( $_POST['wcs_debug_mode'], [ '', 'admin', '1' ], true ) ) {
+        $debug = $_POST['wcs_debug_mode'];
+      }
+
+      update_option( 'wcs_debug_mode', $debug );
       update_option( 'wcs_disable_all', ( isset( $_POST['wcs_disable_all'] ) && $_POST['wcs_disable_all'] ) );
 
       // Ruleset ordering
@@ -353,6 +358,10 @@ class Woo_Conditional_Shipping_Admin {
     $conditions = array_values( $conditions );
 
     foreach ( $conditions as $key => $condition ) {
+      if ( isset( $condition['value'] ) && ! empty( $condition['value'] ) ) {
+        $conditions[$key]['value'] = trim( $condition['value'] );
+      }
+
       if ( isset( $condition['coupon_ids'] ) && is_array( $condition['coupon_ids'] ) ) {
         $conditions[$key]['coupon_ids'] = array_values( array_unique( $condition['coupon_ids'] ) );
       }

@@ -3,15 +3,15 @@
 /*
 Plugin Name: Conditional Shipping for WooCommerce
 Description: Disable shipping methods based on shipping classes, weight, categories and much more.
-Version:     3.5.0
+Version:     3.6.1
 Author:      Lauri Karisola / WP Trio
 Author URI:  https://wptrio.com
 Text Domain: conditional-shipping-for-woocommerce
 Domain Path: /languages
 License:     GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-WC requires at least: 7.0.0
-WC tested up to: 9.0.0
+WC requires at least: 8.0.0
+WC tested up to: 10.0.0
 */
 
 /**
@@ -25,14 +25,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Plugin version
  */
 if ( ! defined( 'WOO_CONDITIONAL_SHIPPING_VERSION' ) ) {
-	define( 'WOO_CONDITIONAL_SHIPPING_VERSION', '3.5.0' );
+	define( 'WOO_CONDITIONAL_SHIPPING_VERSION', '3.6.1' );
 }
 
 /**
  * Assets version
  */
 if ( ! defined( 'WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION' ) ) {
-	define( 'WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION', '3.5.0.free' );
+	define( 'WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION', '3.6.1.free' );
 }
 
 /**
@@ -55,6 +55,9 @@ add_action( 'before_woocommerce_init', function() {
 } );
 
 class Woo_Conditional_Shipping {
+	public $frontend;
+	private static $instance = null;
+
 	/**
 	 * Constructor
 	 */
@@ -88,6 +91,17 @@ class Woo_Conditional_Shipping {
 	}
 
 	/**
+	 * Get instance
+	 */
+	public static function instance() {
+		if ( self::$instance == null ) {
+			self::$instance = new Woo_Conditional_Shipping();
+		}
+	
+		return self::$instance;
+	}
+
+	/**
 	 * Include required files
 	 */
 	public function includes() {
@@ -108,7 +122,7 @@ class Woo_Conditional_Shipping {
 			$this->admin_includes();
 		}
 
-		$this->load_class( plugin_dir_path( __FILE__ ) . 'includes/frontend/class-woo-conditional-shipping-frontend.php', 'Woo_Conditional_Shipping_Frontend' );
+		$this->frontend = $this->load_class( plugin_dir_path( __FILE__ ) . 'includes/frontend/class-woo-conditional-shipping-frontend.php', 'Woo_Conditional_Shipping_Frontend' );
 	}
 
 	/**
@@ -142,7 +156,7 @@ class Woo_Conditional_Shipping {
 }
 
 function init_woo_conditional_shipping() {
-	new Woo_Conditional_Shipping();
+	Woo_Conditional_Shipping::instance();
 }
 
 add_action( 'plugins_loaded', 'init_woo_conditional_shipping', 10 );

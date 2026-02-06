@@ -101,6 +101,75 @@
 /**
  * Shipping notices
  */
-.wcs-shipping-notices.wcs-shipping-notices-blocks {
+#wcs-notices,
+.wcs-shipping-notices {
   margin-top: 1em;
+}
+
+#wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-success, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-error,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-success,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-error {
+  margin-bottom: 0.5rem;
+  padding: 10px 10px 10px 36px;
+  border: 1px solid #000000;
+  background-repeat: no-repeat;
+  background-position: 0.5rem center;
+  font-size: 0.875em;
+  font-weight: 400;
+  color: #2f2f2f;
+  border-radius: 4px;
+  line-height: 19px;
+}
+
+#wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-success:last-child, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning:last-child, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-error:last-child,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-success:last-child,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning:last-child,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-error:last-child {
+  margin-bottom: 0;
+}
+
+#wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-success.conditional-shipping-notice-style-warning, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning.conditional-shipping-notice-style-warning, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-error.conditional-shipping-notice-style-warning,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-success.conditional-shipping-notice-style-warning,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning.conditional-shipping-notice-style-warning,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-error.conditional-shipping-notice-style-warning {
+  background-image: url("../img/notices/warning.svg");
+  background-size: 20px 20px;
+  background-color: #fffbf4;
+  border-color: #f0b849;
+  color: #e67700;
+}
+
+#wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-success.conditional-shipping-notice-style-success, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning.conditional-shipping-notice-style-success, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-error.conditional-shipping-notice-style-success,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-success.conditional-shipping-notice-style-success,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning.conditional-shipping-notice-style-success,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-error.conditional-shipping-notice-style-success {
+  background-image: url("../img/notices/yes-alt.svg");
+  background-size: 20px 20px;
+  background-color: #f4fff4;
+  border-color: #66C449;
+  color: #2b8a3e;
+}
+
+#wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-success.conditional-shipping-notice-style-error, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning.conditional-shipping-notice-style-error, #wcs-notices .conditional-shipping-notice.conditional-shipping-notice-style-error.conditional-shipping-notice-style-error,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-success.conditional-shipping-notice-style-error,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-warning.conditional-shipping-notice-style-error,
+.wcs-shipping-notices .conditional-shipping-notice.conditional-shipping-notice-style-error.conditional-shipping-notice-style-error {
+  background-image: url("../img/notices/dismiss.svg");
+  background-size: 20px 20px;
+  background-color: #FFF4F4;
+  border-color: #F06B49;
+  color: #c92a2a;
+}
+
+.wcs-shipping-notices-blocks > div {
+  margin-bottom: 0.5rem;
+}
+
+.wcs-shipping-notices-blocks > div .conditional-shipping-notice {
+  margin-bottom: 0;
+}
+
+.wcs-shipping-notices-blocks > div:last-child {
+  margin-bottom: 0;
 }

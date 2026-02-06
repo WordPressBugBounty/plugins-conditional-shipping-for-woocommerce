@@ -127,23 +127,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 <script type="text/html" id="tmpl-wcs_row_template">
 	<tr valign="top" class="condition_row">
 		<td class="wcs-condition">
-			<select name="wcs_conditions[{{data.index}}][type]" class="wcs_condition_type_select">
-				<option value=""><?php echo wcs_esc_html( __( '- Select condition - ', 'conditional-shipping-for-woocommerce' ) ); ?></option>
-				<?php foreach ( woo_conditional_shipping_filter_groups() as $filter_group ) { ?>
-					<optgroup label="<?php echo esc_attr( $filter_group['title'] ); ?>">
-						<?php foreach ( $filter_group['filters'] as $key => $filter ) { ?>
-							<option
-								value="<?php echo esc_attr( $key ); ?>"
-								<?php echo ( isset( $filter['pro'] ) && $filter['pro'] ) ? 'disabled' : ''; ?>
-								data-operators="<?php echo htmlspecialchars( json_encode( $filter['operators'] ), ENT_QUOTES, 'UTF-8'); ?>"
-								<# if ( data.type == '<?php echo esc_attr( $key ); ?>' ) { #>selected<# } #>
-							>
-								<?php echo wcs_esc_html( wcs_get_control_title( $filter ) ); ?>
-							</option>
+			<div class="wcs-condition-inputs">
+				<div>
+					<select name="wcs_conditions[{{data.index}}][type]" class="wcs_condition_type_select">
+						<option value=""><?php echo wcs_esc_html( __( '- Select condition - ', 'conditional-shipping-for-woocommerce' ) ); ?></option>
+						<?php foreach ( woo_conditional_shipping_filter_groups() as $filter_group ) { ?>
+							<optgroup label="<?php echo esc_attr( $filter_group['title'] ); ?>">
+								<?php foreach ( $filter_group['filters'] as $key => $filter ) { ?>
+									<option
+										value="<?php echo esc_attr( $key ); ?>"
+										<?php echo ( isset( $filter['pro'] ) && $filter['pro'] ) ? 'disabled' : ''; ?>
+										data-operators="<?php echo htmlspecialchars( json_encode( $filter['operators'] ), ENT_QUOTES, 'UTF-8'); ?>"
+										<# if ( data.type == '<?php echo esc_attr( $key ); ?>' ) { #>selected<# } #>
+									>
+										<?php echo wcs_esc_html( wcs_get_control_title( $filter ) ); ?>
+									</option>
+								<?php } ?>
+							</optgroup>
 						<?php } ?>
-					</optgroup>
-				<?php } ?>
-			</select>
+					</select>
+				</div>
+
+				<div class="value_input wcs_product_meta_key_input">
+					<select class="wcs-product-meta-field-search" name="wcs_conditions[{{data.index}}][meta_key]" data-placeholder="<?php esc_attr_e( 'Meta key', 'conditional-shipping-for-woocommerce' ); ?>">
+						<# if ( data.meta_key ) { #>
+							<option selected value="{{data.meta_key}}">{{data.meta_key}}</option>
+						<# } #>
+					</select>
+				</div>
+			</div>
 		</td>
 		<td class="wcs-operator">
 			<div class="wcs-operator-inputs">
@@ -151,6 +163,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<select name="wcs_conditions[{{data.index}}][product_measurement_mode]" class="">
 						<option value="highest" <# if ( data.product_measurement_mode && data.product_measurement_mode == 'highest' ) { #>selected<# } #>><?php esc_html_e( 'highest', 'conditional-shipping-for-woocommerce' ); ?></option>
 						<option value="lowest" <# if ( data.product_measurement_mode && data.product_measurement_mode == 'lowest' ) { #>selected<# } #>><?php esc_html_e( 'lowest', 'conditional-shipping-for-woocommerce' ); ?></option>
+						<option value="sum" <# if ( data.product_measurement_mode && data.product_measurement_mode == 'sum' ) { #>selected<# } #>><?php esc_html_e( 'total sum', 'conditional-shipping-for-woocommerce' ); ?></option>
 					</select>
 				</div>
 
@@ -309,6 +322,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<textarea name="wcs_conditions[{{data.index}}][postcodes]" class="" placeholder="<?php esc_attr_e( 'List 1 postcode per line', 'woocommerce' ); ?>">{{ data.postcodes }}</textarea>
 
 				<div class="wcs-desc"><?php esc_html_e( 'Postcodes containing wildcards (e.g. CB23*) or fully numeric ranges (e.g. <code>90210...99000</code>) are also supported.', 'conditional-shipping-for-woocommerce' ); ?></div>
+			</div>
+
+			<div class="value_input wcs_textarea_value_input">
+				<textarea name="wcs_conditions[{{data.index}}][textarea]" class="" placeholder="<?php esc_attr_e( 'List 1 value per line', 'woocommerce' ); ?>">{{ data.textarea }}</textarea>
 			</div>
 
 			<div class="value_input wcs_email_value_input">
@@ -512,6 +529,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<td class="wcs-values">
 			<div class="value_input wcs_notice_input">
 				<textarea name="wcs_actions[{{data.index}}][notice]" rows="4" cols="40" placeholder="<?php esc_attr_e( __( 'Shipping notice', 'conditional-shipping-for-woocommerce' ) ); ?>">{{ data.notice }}</textarea>
+
+				<div class="wcs-notice-style">
+					<label><?php esc_html_e( 'Style:', 'conditional-shipping-for-woocommerce' ); ?></label>
+
+					<select name="wcs_actions[{{data.index}}][notice_style]">
+						<?php foreach ( wcs_get_notice_styles() as $key => $label ) { ?>
+							<option value="<?php echo esc_attr( $key ); ?>" <# if ( data.notice_style === "<?php echo esc_attr( $key ); ?>" ) { #>selected<# } #>><?php echo esc_html( $label ); ?></option>
+						<?php } ?>
+					</select>
+				</div>
+
 			</div>
 
 			<div class="value_input wcs_price_value_input">

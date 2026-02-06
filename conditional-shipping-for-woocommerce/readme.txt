@@ -2,9 +2,9 @@
 Contributors: wooelements
 Tags: woocommerce shipping, conditional shipping
 Requires at least: 4.6
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 3.5.0
+Stable tag: 3.6.1
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,16 @@ If you have dynamic / live shipping rates such as USPS, you will need to use **M
 That should be all. Any questions / issues / bug reports feel free to create a post on [WordPress.org support forum](https://wordpress.org/support/plugin/conditional-shipping-for-woocommerce/).
 
 == Changelog ==
+
+= 3.6.1 =
+
+* FIX: Fixed PHP warning for empty conditions in the debug mode
+* FIX: Added better input validation for the rulesets
+
+= 3.6.0 =
+
+* Added **Admin only** mode for the debug mode to make it visible only for administrators (previously visible to all users)
+* Improved compatibility with the blocks checkout
 
 = 3.5.0 =
 
