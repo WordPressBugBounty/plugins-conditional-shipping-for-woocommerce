@@ -78,6 +78,10 @@
 		&.wcs-debug-result-label-fail {
 			background: #c92a2a;
 		}
+
+		&.wcs-debug-result-label-skip {
+			background: #495057;
+		}
 	}
 
 	table.wcs-debug-table {
@@ -97,6 +101,16 @@
 		th.align-right {
 			text-align: right;
 		}
+	}
+
+	.wcs-debug-alert {
+		width: 14px;
+		height: 14px;
+		display: inline-block;
+		background: url("../img/alert-2.svg") no-repeat top left;
+		background-size: 14px 14px;
+		vertical-align: -3px;
+		margin-right: 5px;
 	}
 }
 

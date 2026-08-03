@@ -57,7 +57,7 @@ class Woo_Conditional_Shipping_Admin {
 	  }
 
     wp_enqueue_script( 'jquery-ui-autocomplete' );
-    wp_enqueue_script( 'woo_conditional_shipping_admin_js', WOO_CONDITIONAL_SHIPPING_URL . 'admin/js/woo-conditional-shipping.js', [ 'jquery', 'wp-util', 'jquery-ui-sortable', 'jquery-ui-datepicker' ], WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION );
+    wp_enqueue_script( 'woo_conditional_shipping_admin_js', WOO_CONDITIONAL_SHIPPING_URL . 'admin/js/woo-conditional-shipping.js', [ 'jquery', 'wp-util', 'jquery-ui-sortable', 'jquery-ui-datepicker', 'jquery-ui-dialog' ], WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION );
     
     wp_enqueue_style( 'woo_conditional_shipping_admin_css', WOO_CONDITIONAL_SHIPPING_URL . 'admin/css/woo-conditional-shipping.css', [], WOO_CONDITIONAL_SHIPPING_ASSETS_VERSION );
     
@@ -424,6 +424,7 @@ class Woo_Conditional_Shipping_Admin {
 
     $shipping_method_actions = array(
       'enable_shipping_methods', 'disable_shipping_methods',
+      'enable_shipping_methods_new',
       'set_price', 'increase_price', 'decrease_price',
     );
 

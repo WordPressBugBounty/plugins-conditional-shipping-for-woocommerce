@@ -290,12 +290,14 @@ class Woo_Conditional_Shipping_Debug {
       isset( $actions[$action['type']] ) ? $actions[$action['type']]['title'] : __( 'N/A', 'conditional-shipping-for-woocommerce' ),
     ];
 
-    $desc = false;
-    $status = $passes ? 'pass' : 'fail';
+    $note = false;
+    $status = $passes ? 'pass' : 'skip';
+    $label = $passes ? __( 'Run', 'conditional-shipping-for-woocommerce' ) : __( 'Skip', 'conditional-shipping-for-woocommerce' );
 
     switch ( $action['type'] ) {
       case 'disable_shipping_methods':
       case 'enable_shipping_methods':
+      case 'enable_shipping_methods_new':
         $cols['methods'] = implode( ', ', $this->get_shipping_method_titles( $action ) );
         break;
       case 'set_price':
@@ -327,14 +329,16 @@ class Woo_Conditional_Shipping_Debug {
     }
 
     if ( ! $passes && $action['type'] === 'enable_shipping_methods' ) {
-      $desc = __( 'Shipping methods were disabled by "Enable shipping methods" because conditions did not pass', 'conditional-shipping-for-woocommerce' );
+      $note = __( 'Shipping methods were disabled by this action because conditions did not pass', 'conditional-shipping-for-woocommerce' );
       $status = 'pass';
+      $label = __( 'Run', 'conditional-shipping-for-woocommerce' );
     }
 
     return [
       'cols' => $cols,
-      'desc' => $desc,
-      'status' => $status
+      'label' => $label,
+      'status' => $status,
+      'note' => $note,
     ];
   }
 

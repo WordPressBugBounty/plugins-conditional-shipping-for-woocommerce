@@ -602,6 +602,63 @@ table.wcs-rulesets tfoot .button-secondary {
   float: right;
 }
 
+.wcs-action-container {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.wcs-action-container select {
+  flex: auto;
+  width: auto;
+  display: block;
+}
+
+.wcs-action-container .wcs-action-help-tip {
+  flex: none;
+  cursor: pointer !important;
+  display: block;
+  margin-top: 0;
+}
+
+.wcs-action-container .wcs-action-help-tip::after {
+  cursor: pointer !important;
+}
+
+.wcs-actions-help-modal-container .ui-dialog-titlebar .ui-dialog-titlebar-close {
+  text-indent: -9999px;
+}
+
+.wcs-actions-help-modal-container #wcs-actions-help-modal table {
+  border: none;
+}
+
+.wcs-actions-help-modal-container #wcs-actions-help-modal table th {
+  font-weight: bold;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.wcs-actions-help-modal-container #wcs-actions-help-modal table .wcs-action-help {
+  font-style: italic;
+}
+
+.wcs-actions-help-modal-container #wcs-actions-help-modal table .wcs-action-help .dashicons-lightbulb {
+  color: #fab005;
+  font-size: 16px;
+}
+
+.wcs-actions-help-modal-container #wcs-actions-help-modal table .wcs-action-help .dashicons-warning {
+  color: #fab005;
+  font-size: 16px;
+}
+
+.wcs-actions-help-modal-container .ui-dialog-buttonpane button.ui-button {
+  padding: 6px;
+  height: auto;
+}
+
 .ui-autocomplete {
   z-index: 150000 !important;
 }

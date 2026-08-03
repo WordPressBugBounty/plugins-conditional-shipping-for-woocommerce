@@ -280,6 +280,19 @@ class Woo_Conditional_Shipping_Frontend {
 					}
 				}
 
+				if ( $action['type'] === 'enable_shipping_methods_new' ) {
+					if ( $passes ) {
+						foreach ( $rates as $key => $rate ) {
+							$instance_id = $this->get_rate_instance_id( $rate );
+							$method_title = is_callable( [ $rate, 'get_label' ] ) ? $rate->get_label() : false;
+
+							if ( wcs_method_selected( $method_title, $instance_id, $action ) ) {
+								unset( $disable_keys[$key] );
+							}
+						}
+					}
+				}
+
 				if ( $action['type'] === 'set_title' ) {
 					if ( $passes ) {
 						foreach ( $rates as $key => $rate ) {

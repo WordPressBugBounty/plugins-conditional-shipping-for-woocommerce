@@ -131,7 +131,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="issue-container">
 				<div class="title">
 					<?php echo wp_kses_post( sprintf(
-						__( '<code>Enable shipping methods - %1$s</code> in multiple rulesets', 'conditional-shipping-for-woocommerce' ),
+						__( '<code>Allow shipping methods - %1$s</code> in multiple rulesets', 'conditional-shipping-for-woocommerce' ),
 						woo_conditional_shipping_get_method_title( $instance_id )
 					) ); ?>
 
@@ -140,7 +140,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<div class="details">
 					<div class="issue">
-						<?php printf( __( 'You have <code>Enable shipping methods - %1$s</code> in multiple rulesets (%2$s). <code>Enable shipping methods</code> will disable the methods if conditions do not pass. It can cause unexpected behaviour when used in multiple rulesets for the same shipping method (<code>%1$s</code>).', 'conditional-shipping-for-woocommerce' ), woo_conditional_shipping_get_method_title( $instance_id ), woo_conditional_shipping_format_ruleset_ids( $ruleset_ids ) ); ?>
+						<?php printf( __( 'You have <code>Allow shipping methods - %1$s</code> in multiple rulesets (%2$s). <code>Allow shipping methods</code> will disable the methods if conditions do not pass. It can cause unexpected behaviour when used in multiple rulesets for the same shipping method (<code>%1$s</code>).', 'conditional-shipping-for-woocommerce' ), woo_conditional_shipping_get_method_title( $instance_id ), woo_conditional_shipping_format_ruleset_ids( $ruleset_ids ) ); ?>
 					</div>
 
 					<div class="fix">
@@ -148,7 +148,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						<div>
 							<ul>
 								<li><?php echo wp_kses_post( __( 'Check if you can use <code>Disable shipping methods</code> instead. It\'s usually easier to work with.', 'conditional-shipping-for-woocommerce' ) ); ?></li>
-								<li><?php echo wp_kses_post( sprintf( __( 'Remove <code>Enable shipping methods - %s</code> from all but one ruleset.', 'conditional-shipping-for-woocommerce' ), woo_conditional_shipping_get_method_title( $instance_id ) ) ); ?></li>
+								<li><?php echo wp_kses_post( sprintf( __( 'Remove <code>Allow shipping methods - %s</code> from all but one ruleset.', 'conditional-shipping-for-woocommerce' ), woo_conditional_shipping_get_method_title( $instance_id ) ) ); ?></li>
 							</ul>
 						</div>
 					</div>

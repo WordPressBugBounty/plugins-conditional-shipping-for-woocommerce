@@ -398,8 +398,12 @@ function woo_conditional_shipping_actions() {
       'title' => __( 'Disable shipping methods', 'conditional-shipping-for-woocommerce' ),
       'group' => 'availability',
     ],
-    'enable_shipping_methods' => [
+    'enable_shipping_methods_new' => [
       'title' => __( 'Enable shipping methods', 'conditional-shipping-for-woocommerce' ),
+      'group' => 'availability',
+    ],
+    'enable_shipping_methods' => [
+      'title' => __( 'Allow shipping methods', 'conditional-shipping-for-woocommerce' ),
       'group' => 'availability',
     ],
     'set_price' => [

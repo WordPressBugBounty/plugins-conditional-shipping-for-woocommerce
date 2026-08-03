@@ -487,22 +487,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 <script type="text/html" id="tmpl-wcs_action_row_template">
 	<tr valign="top" class="action_row">
 		<td class="wcs-action">
-			<select name="wcs_actions[{{data.index}}][type]" class="wcs_action_type_select">
-				<option value=""><?php echo wcs_esc_html( __( '- Select action - ', 'conditional-shipping-for-woocommerce' ) ); ?></option>
-				<?php foreach ( wcs_get_grouped_actions() as $group_id => $group ) { ?>
-					<optgroup label="<?php echo esc_attr( $group['title'] ); ?>">
-						<?php foreach ( $group['actions'] as $key => $action ) { ?>
-							<option
-								value="<?php echo esc_attr( $key ); ?>"
-								<?php echo ( isset( $action['pro'] ) && $action['pro'] ) ? 'disabled' : ''; ?>
-								<# if ( data.type == '<?php echo esc_js( $key ); ?>' ) { #>selected<# } #>
-							>
-								<?php echo esc_html( wcs_get_control_title( $action ) ); ?>
-							</option>
-						<?php } ?>
-					</optgroup>
-				<?php } ?>
-			</select>
+			<div class="wcs-action-container">
+				<select name="wcs_actions[{{data.index}}][type]" class="wcs_action_type_select">
+					<option value=""><?php echo wcs_esc_html( __( '- Select action - ', 'conditional-shipping-for-woocommerce' ) ); ?></option>
+					<?php foreach ( wcs_get_grouped_actions() as $group_id => $group ) { ?>
+						<optgroup label="<?php echo esc_attr( $group['title'] ); ?>">
+							<?php foreach ( $group['actions'] as $key => $action ) { ?>
+								<option
+									value="<?php echo esc_attr( $key ); ?>"
+									<?php echo ( isset( $action['pro'] ) && $action['pro'] ) ? 'disabled' : ''; ?>
+									<# if ( data.type == '<?php echo esc_js( $key ); ?>' ) { #>selected<# } #>
+								>
+									<?php echo esc_html( wcs_get_control_title( $action ) ); ?>
+								</option>
+							<?php } ?>
+						</optgroup>
+					<?php } ?>
+				</select>
+
+				<span class="woocommerce-help-tip wcs-action-help-tip"></span>
+			</div>
 
 			<input type="hidden" name="wcs_actions[{{data.index}}][guid]" value="{{ data.guid }}" />
 		</td>
@@ -576,3 +580,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</td>
 	</tr>
 </script>
+
+<div id="wcs-actions-help-modal" style="display:none" title="<?php esc_attr_e( 'Actions', 'conditional-shipping-for-woocommerce' ); ?>">
+	<table class="widefat">
+		<tr>
+			<th><?php esc_html_e( 'Disable shipping methods', 'conditional-shipping-for-woocommerce' ); ?></th>
+			<td><?php esc_html_e( 'Disables shipping methods when conditions pass', 'conditional-shipping-for-woocommerce' ); ?></td>
+		</tr>
+		<tr>
+			<th><?php esc_html_e( 'Enable shipping methods', 'conditional-shipping-for-woocommerce' ); ?></th>
+			<td>
+				<?php esc_html_e( 'Enables shipping methods when conditions pass', 'conditional-shipping-for-woocommerce' ); ?>
+				<div class="wcs-action-help">
+					<span class="dashicons dashicons-lightbulb"></span>
+					<?php esc_html_e( 'Use this to re-enable methods that were disabled by an earlier ruleset.', 'conditional-shipping-for-woocommerce' ); ?>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<th><?php esc_html_e( 'Allow shipping methods', 'conditional-shipping-for-woocommerce' ); ?></th>
+			<td>
+				<?php esc_html_e( 'Enables shipping methods when conditions pass, disables them when conditions fail.', 'conditional-shipping-for-woocommerce' ); ?>
+				<div class="wcs-action-help">
+					<span class="dashicons dashicons-warning"></span>
+					<?php esc_html_e( 'Avoid using this action in multiple rulesets for the same shipping method. Each ruleset will independently toggle availability, which can cause unexpected behavior.', 'conditional-shipping-for-woocommerce' ); ?>
+				</div>
+			</td>
+		</tr>
+	</table>
+</div>

@@ -493,6 +493,7 @@ jQuery(document).ready(function($) {
 				this.triggerAddAction();
 				this.triggerRemoveAction();
 				this.triggerToggleMatchByName();
+				this.triggerHelpModal();
 
 				this.triggersInit = true;
 			}
@@ -624,6 +625,28 @@ jQuery(document).ready(function($) {
 				self.addAction( {} );
 
 				$( 'input[name="wcs_pro_features"]' ).trigger( 'change' );
+			});
+		},
+
+		/**
+		 * Trigger help modal
+		 */
+		triggerHelpModal: function() {
+			$('#wcs-actions-help-modal').dialog({
+				autoOpen: false,
+				modal: true,
+				width: 600,
+				dialogClass: 'wcs-actions-help-modal-container',
+				buttons: { Close: function() { $(this).dialog('close'); } }
+			});
+
+			$('.wcs-action-help-tip').on('click', function(e) {
+				e.preventDefault();
+				$('#wcs-actions-help-modal').dialog('open');
+			});
+
+			$(document).on('click', '.ui-widget-overlay', function() {
+				$('#wcs-actions-help-modal').dialog('close');
 			});
 		},
 
